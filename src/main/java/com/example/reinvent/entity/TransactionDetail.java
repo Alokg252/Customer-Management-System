@@ -22,6 +22,7 @@ public class TransactionDetail {
     private String productName;
     private int quantity;
     private double amount;
+    private double cost;
 
     // Getters and Setters
 }

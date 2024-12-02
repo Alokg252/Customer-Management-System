@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "transactions")  // Changed from 'transaction' to avoid SQLite keyword
 public class Transaction {
 
     @Id
@@ -25,7 +26,4 @@ public class Transaction {
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
     private List<TransactionDetail> details;
-
-    // Getters and Setters
 }
-
