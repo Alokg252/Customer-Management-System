@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.reinvent.repository.TransactionRepository;
 import org.springframework.orm.jpa.JpaSystemException;
 import com.example.reinvent.entity.Transaction;
-import com.example.reinvent.entity.TransactionDetail;
 
 import org.springframework.stereotype.Service;
 import java.io.File;
