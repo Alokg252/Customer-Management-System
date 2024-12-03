@@ -37,13 +37,6 @@ public class TransactionController {
         return transactionService.getTransactionsByDate(date);
     }
 
-    @GetMapping("/yearmonth/{year}/{month}")
-    public List<Transaction> getTransactionsByYearAndMonth(
-            @PathVariable int year,
-            @PathVariable int month) {
-        return transactionService.getTransactionsByYearAndMonth(year, month);
-    }
-
     @GetMapping("/referred1/{customerId}")
     public List<Transaction> getTransactionsByReferredCustomerId1(
             @PathVariable String customerId) {
@@ -61,19 +54,19 @@ public class TransactionController {
             @PathVariable String referralId) {
         return transactionService.getTransactionsByReferralId(referralId);
     }
+    
+        @GetMapping("/referrals/{referralId}")
+        public List<Transaction> getReferrals(@PathVariable String referralId) {
+            return transactionRepository.findByReferredCustomerId1OrReferredCustomerId2(referralId);
+        }
 
     @PostMapping
     public Transaction saveTransaction(@RequestBody Transaction transaction) {
         // Check referral constraints
-        if (transaction.getReferredCustomerId1() != null && transaction.getReferredCustomerId2() != null) {
-            throw new IllegalArgumentException("A customer can refer only two new customers.");
-        }
+        // if (transaction.getReferredCustomerId1() != null && transaction.getReferredCustomerId2() != null) {
+        //     throw new IllegalArgumentException("A customer can refer only two new customers.");
+        // }
         return transactionService.saveTransaction(transaction);
-    }
-
-    @GetMapping("/referrals/{referralId}")
-    public List<Transaction> getReferrals(@PathVariable String referralId) {
-        return transactionRepository.findByReferredCustomerId1OrReferredCustomerId2(referralId);
     }
 
     // Update transaction (including customer info)

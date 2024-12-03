@@ -2,12 +2,12 @@ package com.example.reinvent.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.reinvent.repository.TransactionRepository;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.orm.jpa.JpaSystemException;
 import com.example.reinvent.entity.Transaction;
-import org.springframework.stereotype.Service;
+import com.example.reinvent.entity.TransactionDetail;
 
+import org.springframework.stereotype.Service;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -19,8 +19,6 @@ public class TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
-    private final AtomicInteger dailyCustomerCount = new AtomicInteger(0); // Reset daily
 
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
@@ -42,10 +40,6 @@ public class TransactionService {
         return transactionRepository.findByReferralId(referralId);
     }
 
-    public List<Transaction> getTransactionsByYearAndMonth(int year, int month) {
-        return transactionRepository.findByYearAndMonth(year, month);
-    }
-
     public List<Transaction> getTransactionsByReferredCustomerId1(String referredCustomerId1) {
         return transactionRepository.findByReferredCustomerId1(referredCustomerId1);
     }
@@ -61,16 +55,43 @@ public class TransactionService {
         try {
             referralId = generateNewReferralId();
         } catch (Exception e) {
-            System.out.println("\n--------------------------------------------------\n"
-                            +e.getMessage()
-                            +"\n---------------------------------------------------\n");
+            e.getMessage();
         }
         transaction.setReferralId(referralId);
         transaction.setCustomerId("CUST-" + referralId);
         
-        return transactionRepository.save(transaction);
+        System.out.println("\n--------------------------------------------------\n"
+        + transaction
+        + "\n---------------------------------------------------\n");
+        
+        System.out.println("\n--------------------------------------------------\n"
+        + transaction.getDetails()
+        + "\n---------------------------------------------------\n");
+        
+        try {
+            
+            // System.out.println("\n--------------------------------------------------\n"
+            // + transaction
+            // + "\n---------------------------------------------------\n");
+
+            return transactionRepository.save(transaction);
+        }
+
+        catch (JpaSystemException e) {
+            System.out.println("\n----------------------------------------------------\n");
+            System.out.println("is still run...");
+            System.out.println(e.getMessage());
+            System.out.println("\n----------------------------------------------------\n");
+        } catch (Exception e) {
+            System.out.println("\n----------------------------------------------------\n");
+            System.out.println(e.getClass());
+            System.out.println(e.getMessage());
+            System.out.println("\n----------------------------------------------------\n");
+        }
+
+        return null;
     }
-    
+
     // Generate unique customer ID (UUID or custom logic)
     public String generateNewReferralId() throws IOException {
 
@@ -85,15 +106,15 @@ public class TransactionService {
         Scanner scanner = new Scanner(file);
 
         char c = '@';
-        if(scanner.hasNextLine()){
+        if (scanner.hasNextLine()) {
             String s = scanner.nextLine();
             int len = s.length();
-            String mmydd1 = s.substring(0,len-1); // fetched referalId month year and Date
-            String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and date 
-            
-            if(mmydd1.equals(mmydd2)){
-                c = s.charAt(len-1); 
-                if(c<'a' && c>='Z')
+            String mmydd1 = s.substring(0, len - 1); // fetched referalId month year and Date
+            String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and date
+
+            if (mmydd1.equals(mmydd2)) {
+                c = s.charAt(len - 1);
+                if (c < 'a' && c >= 'Z')
                     c = 96;
             }
         }
@@ -101,10 +122,10 @@ public class TransactionService {
 
         char currentChar = c;
         char nextChar = (char) (currentChar + 1);
-        
+
         // Generate referral ID: MMYDDA
         String referralId = String.format("%02d%d%02d%c", month, yearLastDigit, dayOfMonth, nextChar);
-        
+
         FileWriter fileWriter = new FileWriter(path);
         fileWriter.write(referralId);
         fileWriter.close();
@@ -114,7 +135,8 @@ public class TransactionService {
     public void validateReferrals(Transaction transaction) {
         if (transaction.getReferredCustomerId1() != null && transaction.getReferredCustomerId2() != null) {
             Transaction referrer = transactionRepository.findByCustomerId(transaction.getReferredCustomerId1()).get(0);
-            if (referrer != null && (referrer.getReferredCustomerId1() != null && referrer.getReferredCustomerId2() != null)) {
+            if (referrer != null
+                    && (referrer.getReferredCustomerId1() != null && referrer.getReferredCustomerId2() != null)) {
                 throw new IllegalArgumentException("Referrer has already referred two customers.");
             }
         }
