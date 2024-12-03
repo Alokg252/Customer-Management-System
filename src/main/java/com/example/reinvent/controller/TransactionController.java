@@ -37,10 +37,30 @@ public class TransactionController {
         return transactionService.getTransactionsByDate(date);
     }
 
-    // @PostMapping
-    // public Transaction saveTransaction0(@RequestBody Transaction transaction) {
-    //     return transactionService.saveTransaction(transaction);
-    // }
+    @GetMapping("/yearmonth/{year}/{month}")
+    public List<Transaction> getTransactionsByYearAndMonth(
+            @PathVariable int year,
+            @PathVariable int month) {
+        return transactionService.getTransactionsByYearAndMonth(year, month);
+    }
+
+    @GetMapping("/referred1/{customerId}")
+    public List<Transaction> getTransactionsByReferredCustomerId1(
+            @PathVariable String customerId) {
+        return transactionService.getTransactionsByReferredCustomerId1(customerId);
+    }
+
+    @GetMapping("/referred2/{customerId}")
+    public List<Transaction> getTransactionsByReferredCustomerId2(
+            @PathVariable String customerId) {
+        return transactionService.getTransactionsByReferredCustomerId2(customerId);
+    }
+
+    @GetMapping("/referralid/{referralId}")
+    public List<Transaction> getTransactionsByReferralId(
+            @PathVariable String referralId) {
+        return transactionService.getTransactionsByReferralId(referralId);
+    }
 
     @PostMapping
     public Transaction saveTransaction(@RequestBody Transaction transaction) {

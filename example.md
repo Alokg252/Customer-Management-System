@@ -1,38 +1,82 @@
-### **Sample API Requests**
+# **Sample API Requests**
 ---
 
-#### API Endpoints
+## API Endpoints
 
 1. **Get All Transactions**
+   <br><span style="color:lightgreen">**GET**</span> 
    ```
-   GET /api/transactions
+   /api/transactions
    ```
 
 2. **Get Transactions by Customer Name**
+   <br><span style="color:lightgreen">**GET**</span>
    ```
-   GET /api/transactions/customer/name/{name}
+   /api/transactions/customer/name/{name}
    ```
 
 3. **Get Transactions by Customer ID**
+   <br><span style="color:lightgreen">**GET**</span> 
    ```
-   GET /api/transactions/customer/id/{id}
+   /api/transactions/customer/id/{id}
    ```
 
 4. **Get Transactions by Date**
+   <br><span style="color:lightgreen">**GET**</span> 
    ```
-   GET /api/transactions/date/{date}
+   /api/transactions/date/{date}
    ```
+
+5. **Get Transactions by Year and Month**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/yearmonth/{year}/{month}
+   ```
+   Example: /api/transactions/yearmonth/2024/3
+   Response: List of transactions for the specified year and month
+
+6. **Get Transactions by First Referred Customer**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/referred1/{customerId}
+   ```
+   Example: /api/transactions/referred1/CUST-030524A
+   Response: List of transactions where the specified ID is referredCustomerId1
+
+7. **Get Transactions by Second Referred Customer**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/referred2/{customerId}
+   ```
+   Example: /api/transactions/referred2/CUST-030524A
+   Response: List of transactions where the specified ID is referredCustomerId2
+
+8. **Get Transactions by Referral ID**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/referralid/{referralId}
+   ```
+   Example: /api/transactions/referralid/030524A
+   Response: List of transactions with the exact referral ID
+
 ---
 
 #### Add a New Transaction with Referral
+<span style="color:yellow">**POST**</span> 
 ```http
-POST /api/transactions
+/api/transactions
+```
+```json
 Body:
 {
     "customerName": "Alice",
+    "customerId": "CUST-12402A",
+    "referralId": "NA",
+    "referredBy":"NA",
     "date": "2024-12-02",
     "details": [
-        { "productName": "Product A", "quantity": 2, "amount": 20.50 }
+        { "productName": "Product A", "quantity": 2, "amount": 20.50, "cost": 10.25 },
+        { "productName": "Product B", "quantity": 3, "amount": 30.75, "cost": 15.50 }
     ],
     "referredCustomerId1": "CUST-12402A" // Referral logic
 }
@@ -40,29 +84,35 @@ Body:
 ---
 
 #### Update a Transaction (Including Customer Info)
+<span style="color:ORANGE">**PUT**</span> 
 ```http
-PUT /api/transactions/1
+/api/transactions/1
+```
+```json
 Body:
 {
     "customerName": "Updated Customer Name",
     "customerId": "CUST-12402A",
     "referralId": "020521A",
+    "referredBy":"NA",
     "referredCustomerId1": "CUST-12402B",
     "referredCustomerId2": "CUST-12402C",
     "date": "2024-12-02",
     "details": [
-        { "productName": "Updated Product A", "quantity": 5, "amount": 50.00 }
+        { "productName": "Updated Product A", "quantity": 5, "amount": 50.00, "cost": 25.00 }
     ]
 }
 ```
 ---
 
 #### Delete a Transaction
+<span style="color:#FF5555">**DELETE**</span> 
 ```http
-DELETE /api/transactions/1
+/api/transactions/1
 ```
 
 #### Delete All Transactions for a Customer
+<span style="color:#FF5555">**DELETE**</span> 
 ```http
-DELETE /api/transactions/customer/CUST-12402A
+/api/transactions/customer/CUST-12402A
 ```

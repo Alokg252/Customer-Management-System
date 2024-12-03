@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "transactions")  // Changed from 'transaction' to avoid SQLite keyword
+@Table(name = "transactions") // Changed from 'transaction' to avoid SQLite keyword
 public class Transaction {
 
     @Id
@@ -20,6 +20,7 @@ public class Transaction {
     private String customerName;
     private String customerId; // Auto-generated
     private String referralId; // Unique referral format MMYDDA
+    private String referredBy; // referred customerId
     private String referredCustomerId1; // First referred customer
     private String referredCustomerId2; // Second referred customer
     private String date;

@@ -10,5 +10,4 @@ public class ReinventApplication {
 		SpringApplication.run(ReinventApplication.class, args);
 		System.out.println("apis");
 	}
-
 }

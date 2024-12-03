@@ -6,8 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.example.reinvent.entity.Transaction;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Scanner;
 
 @Service
 public class TransactionService {
@@ -33,21 +38,77 @@ public class TransactionService {
         return transactionRepository.findByDate(date);
     }
 
+    public List<Transaction> getTransactionsByReferralId(String referralId) {
+        return transactionRepository.findByReferralId(referralId);
+    }
+
+    public List<Transaction> getTransactionsByYearAndMonth(int year, int month) {
+        return transactionRepository.findByYearAndMonth(year, month);
+    }
+
+    public List<Transaction> getTransactionsByReferredCustomerId1(String referredCustomerId1) {
+        return transactionRepository.findByReferredCustomerId1(referredCustomerId1);
+    }
+
+    public List<Transaction> getTransactionsByReferredCustomerId2(String referredCustomerId2) {
+        return transactionRepository.findByReferredCustomerId2(referredCustomerId2);
+    }
+
     public Transaction saveTransaction(Transaction transaction) {
+        // Generate referral ID: MMYDDA
+
+        String referralId = null;
+        try {
+            referralId = generateNewReferralId();
+        } catch (Exception e) {
+            System.out.println("\n--------------------------------------------------\n"
+                            +e.getMessage()
+                            +"\n---------------------------------------------------\n");
+        }
+        transaction.setReferralId(referralId);
+        transaction.setCustomerId("CUST-" + referralId);
+        
+        return transactionRepository.save(transaction);
+    }
+    
+    // Generate unique customer ID (UUID or custom logic)
+    public String generateNewReferralId() throws IOException {
+
         LocalDate today = LocalDate.now();
         int dayOfMonth = today.getDayOfMonth();
         int month = today.getMonthValue();
         int yearLastDigit = today.getYear() % 10;
 
+        String path = "src/main/resources/static/char.txt";
+
+        File file = new File(path);
+        Scanner scanner = new Scanner(file);
+
+        char c = '@';
+        if(scanner.hasNextLine()){
+            String s = scanner.nextLine();
+            int len = s.length();
+            String mmydd1 = s.substring(0,len-1); // fetched referalId month year and Date
+            String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and date 
+            
+            if(mmydd1.equals(mmydd2)){
+                c = s.charAt(len-1); 
+                if(c<'a' && c>='Z')
+                    c = 96;
+            }
+        }
+        scanner.close();
+
+        char currentChar = c;
+        char nextChar = (char) (currentChar + 1);
+        
         // Generate referral ID: MMYDDA
-        char dailyAlpha = (char) ('A' + dailyCustomerCount.getAndIncrement());
-        String referralId = String.format("%02d%d%02d%c", month, yearLastDigit, dayOfMonth, dailyAlpha);
-        transaction.setReferralId(referralId);
-
-        // Generate unique customer ID (UUID or custom logic)
-        transaction.setCustomerId("CUST-" + referralId);
-
-        return transactionRepository.save(transaction);
+        String referralId = String.format("%02d%d%02d%c", month, yearLastDigit, dayOfMonth, nextChar);
+        
+        FileWriter fileWriter = new FileWriter(path);
+        fileWriter.write(referralId);
+        fileWriter.close();
+        return referralId;
     }
 
     public void validateReferrals(Transaction transaction) {

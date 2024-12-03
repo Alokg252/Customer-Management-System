@@ -24,6 +24,7 @@ def test_create_transaction():
                 "cost": 19.99
             }
         ],
+        "referredBy":"NA",
         "referredCustomerId1": "CUST-12402A"
     }
     
@@ -67,6 +68,7 @@ def test_update_transaction(transaction_id):
         "customerName": "Updated Alice Smith",
         "customerId": "CUST-12402A",
         "referralId": "020521A",
+        "referredBy":"NA",
         "referredCustomerId1": "CUST-12402B",
         "referredCustomerId2": "CUST-12402C",
         "date": datetime.now().strftime("%Y-%m-%d"),
