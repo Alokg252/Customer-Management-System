@@ -16,12 +16,21 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String customerName;
+
+    @Column(unique = true, nullable = false)
     private String customerId;
+
+    @Column(unique = true, nullable = true)
     private String referralId;
+
+    @Column(unique = true, nullable = true)
     private String referredCustomerId1;
+
+    @Column(unique = true, nullable = true)
     private String referredCustomerId2;
+    
     private String date;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

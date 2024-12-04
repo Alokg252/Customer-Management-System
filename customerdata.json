@@ -1,0 +1,57 @@
+[
+    {
+        "customerName": "Alice Smith",
+        "date": "04/12/2024",
+        "customerId":"12RM45",
+        "referralId":"12504A",
+        "details": [
+            {
+                "productName": "Laptop",
+                "quantity": 12,
+                "amount": 999.99,
+                "cost": 799.99
+            },
+            {
+                "productName": "Mouse",
+                "quantity": 23,
+                "amount": 29.99,
+                "cost": 19.99
+            }
+        ],
+        "referredCustomerId1": "12402A"
+    },
+    {
+        "customerName": "Bob Brown",
+        "date": "21/03/2024",
+        "customerId":"12402A",
+        "referralId":"12504B",
+        "details": [
+            {
+                "productName": "purse",
+                "quantity": 5,
+                "amount": 1799.99,
+                "cost": 1299.99
+            },
+            {
+                "productName": "sun glasses",
+                "quantity": 11,
+                "amount": 49.99,
+                "cost": 39.99
+            }
+        ],
+        "referredCustomerId1": "12504B"
+    },
+    {
+        "customerName": "Charlie Davis",
+        "date": "1/04/2024",
+        "customerId":"12504B",
+        "details": [
+            {
+                "productName": "watch",
+                "quantity": 2,
+                "amount": 999.99,
+                "cost": 799.99
+            }
+        ]
+    }
+]

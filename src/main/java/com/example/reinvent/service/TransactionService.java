@@ -48,87 +48,68 @@ public class TransactionService {
     }
 
     public Transaction saveTransaction(Transaction transaction) {
-        // Generate referral ID: MMYDDA
 
-        String referralId = null;
         try {
-            referralId = generateNewReferralId();
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        transaction.setReferralId(referralId);
-        transaction.setCustomerId("CUST-" + referralId);
-        
-        System.out.println("\n--------------------------------------------------\n"
-        + transaction
-        + "\n---------------------------------------------------\n");
-        
-        System.out.println("\n--------------------------------------------------\n"
-        + transaction.getDetails()
-        + "\n---------------------------------------------------\n");
-        
-        try {
-            
-            // System.out.println("\n--------------------------------------------------\n"
-            // + transaction
-            // + "\n---------------------------------------------------\n");
-
             return transactionRepository.save(transaction);
-        }
-
-        catch (JpaSystemException e) {
-            System.out.println("\n----------------------------------------------------\n");
-            System.out.println("is still run...");
+        } catch (JpaSystemException e) {
+            System.out.println("\n-----------------------------------------------\n");
+            System.out.println(e.getClass());
+            System.out.println("\n-----------------------------------------------\n");
             System.out.println(e.getMessage());
-            System.out.println("\n----------------------------------------------------\n");
         } catch (Exception e) {
-            System.out.println("\n----------------------------------------------------\n");
+            System.out.println("\n-----------------------------------------------\n");
             System.out.println(e.getClass());
             System.out.println(e.getMessage());
-            System.out.println("\n----------------------------------------------------\n");
+            System.out.println("\n-----------------------------------------------\n");
         }
 
         return null;
     }
 
     // Generate unique customer ID (UUID or custom logic)
-    public String generateNewReferralId() throws IOException {
+    public String generateNewReferralId() {
 
-        LocalDate today = LocalDate.now();
-        int dayOfMonth = today.getDayOfMonth();
-        int month = today.getMonthValue();
-        int yearLastDigit = today.getYear() % 10;
+        try {
 
-        String path = "src/main/resources/static/char.txt";
+            LocalDate today = LocalDate.now();
+            int dayOfMonth = today.getDayOfMonth();
+            int month = today.getMonthValue();
+            int yearLastDigit = today.getYear() % 10;
 
-        File file = new File(path);
-        Scanner scanner = new Scanner(file);
+            String path = "src/main/resources/static/char.txt";
 
-        char c = '@';
-        if (scanner.hasNextLine()) {
-            String s = scanner.nextLine();
-            int len = s.length();
-            String mmydd1 = s.substring(0, len - 1); // fetched referalId month year and Date
-            String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and date
+            File file = new File(path);
+            Scanner scanner = new Scanner(file);
 
-            if (mmydd1.equals(mmydd2)) {
-                c = s.charAt(len - 1);
-                if (c < 'a' && c >= 'Z')
-                    c = 96;
+            char c = '@';
+            if (scanner.hasNextLine()) {
+                String s = scanner.nextLine();
+                int len = s.length();
+                String mmydd1 = s.substring(0, len - 1); // fetched referalId month year and Date
+                String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and
+                                                                                               // date
+
+                if (mmydd1.equals(mmydd2)) {
+                    c = s.charAt(len - 1);
+                    if (c < 'a' && c >= 'Z')
+                        c = 96;
+                }
             }
+            scanner.close();
+
+            char currentChar = c;
+            char nextChar = (char) (currentChar + 1);
+
+            // Generate referral ID: MMYDDA
+            String referralId = String.format("%02d%d%02d%c", month, yearLastDigit, dayOfMonth, nextChar);
+
+            FileWriter fileWriter = new FileWriter(path);
+            fileWriter.write(referralId);
+            fileWriter.close();
+            return referralId;
+        } catch (Exception e) {
+            return null;
         }
-        scanner.close();
-
-        char currentChar = c;
-        char nextChar = (char) (currentChar + 1);
-
-        // Generate referral ID: MMYDDA
-        String referralId = String.format("%02d%d%02d%c", month, yearLastDigit, dayOfMonth, nextChar);
-
-        FileWriter fileWriter = new FileWriter(path);
-        fileWriter.write(referralId);
-        fileWriter.close();
-        return referralId;
     }
 
     public void validateReferrals(Transaction transaction) {

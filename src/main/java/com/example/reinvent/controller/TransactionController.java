@@ -6,6 +6,9 @@ import com.example.reinvent.entity.Transaction;
 import com.example.reinvent.repository.TransactionRepository;
 import com.example.reinvent.service.TransactionService;
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -20,6 +23,11 @@ public class TransactionController {
     @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionService.getAllTransactions();
+    }
+
+    @GetMapping("/newreferralid")
+    public String getNewReferralId() {
+        return transactionService.generateNewReferralId();
     }
 
     @GetMapping("/customer/name/{name}")
@@ -55,10 +63,10 @@ public class TransactionController {
         return transactionService.getTransactionsByReferralId(referralId);
     }
     
-        @GetMapping("/referrals/{referralId}")
-        public List<Transaction> getReferrals(@PathVariable String referralId) {
-            return transactionRepository.findByReferredCustomerId1OrReferredCustomerId2(referralId);
-        }
+    @GetMapping("/referrals/{referralId}")
+    public List<Transaction> getReferrals(@PathVariable String referralId) {
+        return transactionRepository.findByReferredCustomerId1OrReferredCustomerId2(referralId);
+    }
 
     @PostMapping
     public Transaction saveTransaction(@RequestBody Transaction transaction) {
@@ -69,6 +77,11 @@ public class TransactionController {
         return transactionService.saveTransaction(transaction);
     }
 
+    @PostMapping("/all")
+    public List<Transaction> saveAllTransaction(@RequestBody List<Transaction> transactions) {
+        return transactionRepository.saveAll(transactions);
+    }
+    
     // Update transaction (including customer info)
     @PutMapping("/{id}")
     public Transaction updateTransaction(@PathVariable Long id, @RequestBody Transaction updatedTransaction) {
