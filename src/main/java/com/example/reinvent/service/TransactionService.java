@@ -25,19 +25,30 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByCustomerName(String customerName) {
-        return transactionRepository.findByCustomerName(customerName);
+        return transactionRepository.findByCustomerNameContainingIgnoreCase(customerName);
     }
 
     public List<Transaction> getTransactionsByCustomerId(String customerId) {
-        return transactionRepository.findByCustomerId(customerId);
+        return transactionRepository.findByCustomerIdContainingIgnoreCase(customerId);
+    }
+
+    public List<Transaction> getTransactionsByMobile(String mobile) {
+        return transactionRepository.findByMobileContainingIgnoreCase(mobile);
+    }
+
+    public List<Transaction> getTransactionsByReferralId(String referralId) {
+        return transactionRepository.findByReferralIdContainingIgnoreCase(referralId);
+    }
+
+    public List<Transaction> searchTransactions(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return List.of();
+        }
+        return transactionRepository.searchTransactions(searchTerm.trim());
     }
 
     public List<Transaction> getTransactionsByDate(String date) {
         return transactionRepository.findByJoinedDate(date);
-    }
-
-    public List<Transaction> getTransactionsByReferralId(String referralId) {
-        return transactionRepository.findByReferralId(referralId);
     }
 
     public List<Transaction> getTransactionsByReferredCustomerId1(String referredCustomerId1) {

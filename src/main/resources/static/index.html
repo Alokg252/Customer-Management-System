@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="alerts"></div>
     <div class="container">
         <header>
             <h1>Transaction Management System</h1>
@@ -21,54 +22,75 @@
         <main>
             <section id="new-transaction" class="section">
                 <h2>New Transaction</h2>
+                <div class="customer-search">
+                    <div class="search-box">
+                        <select id="search-type" onchange="handleSearchInput()">
+                            <option value="all">Search All Fields</option>
+                            <option value="customerName">Search by Name</option>
+                            <option value="customerId">Search by ID</option>
+                            <option value="mobile">Search by Mobile</option>
+                            <option value="referralId">Search by Referral ID</option>
+                        </select>
+                        <input type="text" 
+                               id="customer-search-input" 
+                               placeholder="Start typing to search..." 
+                               oninput="handleSearchInput()"
+                               autocomplete="off">
+                    </div>
+                    <div id="search-results-dropdown" class="search-results-dropdown hidden"></div>
+                </div>
+                
                 <form id="transaction-form" onsubmit="handleNewTransaction(event)">
-                    <div class="form-group">
-                        <label for="customerName">Customer Name:</label>
-                        <input type="text" id="customerName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="customerId">Customer ID:</label>
-                        <div class="input-with-button">
-                            <input type="text" id="customerId" required>
-                            <button type="button" onclick="generateAndSetCustomerId()">Generate ID</button>
+                    <div class="customer-details">
+                        <h3>Customer Details</h3>
+                        <div class="form-group">
+                            <label for="customerName">Customer Name:</label>
+                            <input type="text" id="customerName" required>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="referralId">Referral ID:</label>
-                        <div class="input-with-button">
-                            <input type="text" id="referralId" required>
-                            <button type="button" onclick="generateAndSetReferralId()">Generate ID</button>
+                        <div class="form-group">
+                            <label for="customerId">Customer ID:</label>
+                            <div class="input-with-button">
+                                <input type="text" id="customerId" required>
+                                <button type="button" onclick="generateAndSetCustomerId()">Generate ID</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="mobile">Mobile:</label>
-                        <input type="tel" id="mobile" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="referredBy">Referred By:</label>
-                        <input type="text" id="referredBy">
-                    </div>
-                    <div class="form-group">
-                        <label for="referredCustomerId1">Referred Customer ID 1:</label>
-                        <input type="text" id="referredCustomerId1">
-                    </div>
-                    <div class="form-group">
-                        <label for="referredCustomerId2">Referred Customer ID 2:</label>
-                        <input type="text" id="referredCustomerId2">
-                    </div>
-                    <hr class="section-divider">
-                    <h3>Product Details</h3>
-                    <div id="products-container">
-                        <!-- Product entries will be added here -->
-                    </div>
-                    <button type="button" class="secondary-button" onclick="addProductEntry()">Add Product</button>
-                    
-                    <div class="total-section">
-                        <h4>Total Amount: <span id="total-amount">₹0.00</span></h4>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="primary-button">Save Transaction</button>
+                        <div class="form-group">
+                            <label for="referralId">Referral ID:</label>
+                            <div class="input-with-button">
+                                <input type="text" id="referralId" required>
+                                <button type="button" onclick="generateAndSetReferralId()">Generate ID</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile">Mobile:</label>
+                            <input type="tel" id="mobile" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="referredBy">Referred By:</label>
+                            <input type="text" id="referredBy">
+                        </div>
+                        <div class="form-group">
+                            <label for="referredCustomerId1">Referred Customer ID 1:</label>
+                            <input type="text" id="referredCustomerId1">
+                        </div>
+                        <div class="form-group">
+                            <label for="referredCustomerId2">Referred Customer ID 2:</label>
+                            <input type="text" id="referredCustomerId2">
+                        </div>
+                        <hr class="section-divider">
+                        <h3>Product Details</h3>
+                        <div id="products-container">
+                            <!-- Product entries will be added here -->
+                        </div>
+                        <button type="button" class="secondary-button" onclick="addProductEntry()">Add Product</button>
+                        
+                        <div class="total-section">
+                            <h4>Total Amount: <span id="total-amount">₹0.00</span></h4>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="primary-button">Save Transaction</button>
+                        </div>
                     </div>
                 </form>
             </section>
