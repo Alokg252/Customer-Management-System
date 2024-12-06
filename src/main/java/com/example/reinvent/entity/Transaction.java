@@ -19,31 +19,38 @@ public class Transaction {
 
     private String customerName;
 
-    @Column(unique = true, nullable = false)
     private String customerId;
 
-    @Column(unique = true, nullable = true)
     private String referralId;
 
-    @Column(unique = true, nullable = true)
+    private String mobile;
+
+    private String referredBy;
+
     private String referredCustomerId1;
 
-    @Column(unique = true, nullable = true)
     private String referredCustomerId2;
     
-    private String date;
+    private String joinedDate;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "transaction_id") // This is the foreign key in TransactionDetail table
+    @JoinColumn(name = "transaction_id")
     private List<TransactionDetail> details = new ArrayList<>();
 
-    // Helper method to add details
-    public void addDetail(TransactionDetail detail) {
-        details.add(detail);
+    public void setDetails(List<TransactionDetail> details) {
+        if (this.details == null) {
+            this.details = new ArrayList<>();
+        }
+        this.details.clear();
+        if (details != null) {
+            this.details.addAll(details);
+        }
     }
 
-    // Helper method to remove details
-    public void removeDetail(TransactionDetail detail) {
-        details.remove(detail);
+    public List<TransactionDetail> getDetails() {
+        if (this.details == null) {
+            this.details = new ArrayList<>();
+        }
+        return this.details;
     }
 }

@@ -1,13 +1,12 @@
 package com.example.reinvent.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.reinvent.entity.Transaction;
 import com.example.reinvent.repository.TransactionRepository;
 import com.example.reinvent.service.TransactionService;
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -25,9 +24,14 @@ public class TransactionController {
         return transactionService.getAllTransactions();
     }
 
-    @GetMapping("/newreferralid")
+    @GetMapping("/referralid/new")
     public String getNewReferralId() {
         return transactionService.generateNewReferralId();
+    }
+
+    @GetMapping("/customerid/new")
+    public String getNewCustomerId() {
+        return transactionService.generateNewCustomerId();
     }
 
     @GetMapping("/customer/name/{name}")
@@ -84,8 +88,15 @@ public class TransactionController {
     
     // Update transaction (including customer info)
     @PutMapping("/{id}")
-    public Transaction updateTransaction(@PathVariable Long id, @RequestBody Transaction updatedTransaction) {
-        return transactionService.updateTransaction(id, updatedTransaction);
+    public ResponseEntity<?> updateTransaction(@PathVariable Long id, @RequestBody Transaction updatedTransaction) {
+        try {
+            Transaction updated = transactionService.updateTransaction(id, updatedTransaction);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error updating transaction: " + e.getMessage());
+        }
     }
 
     // Delete a transaction

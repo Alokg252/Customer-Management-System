@@ -1,0 +1,3 @@
+- set date per transection detail
+- searching by customer to add transections
+- show previous transactions

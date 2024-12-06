@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.reinvent.repository.TransactionRepository;
 import org.springframework.orm.jpa.JpaSystemException;
 import com.example.reinvent.entity.Transaction;
+import com.example.reinvent.entity.TransactionDetail;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
@@ -32,7 +33,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByDate(String date) {
-        return transactionRepository.findByDate(date);
+        return transactionRepository.findByJoinedDate(date);
     }
 
     public List<Transaction> getTransactionsByReferralId(String referralId) {
@@ -48,7 +49,6 @@ public class TransactionService {
     }
 
     public Transaction saveTransaction(Transaction transaction) {
-
         try {
             return transactionRepository.save(transaction);
         } catch (JpaSystemException e) {
@@ -66,9 +66,8 @@ public class TransactionService {
         return null;
     }
 
-    // Generate unique customer ID (UUID or custom logic)
+    // Generate unique referral ID (UUID or custom logic)
     public String generateNewReferralId() {
-
         try {
 
             LocalDate today = LocalDate.now();
@@ -106,10 +105,44 @@ public class TransactionService {
             FileWriter fileWriter = new FileWriter(path);
             fileWriter.write(referralId);
             fileWriter.close();
-            return referralId;
+
+            if (transactionRepository.findByReferralId(referralId).size() > 0) // if referralId already exists
+                return generateNewReferralId();
+            else
+                return referralId;
+                
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // --------------------------------- customerId start ---------------------------------
+    private final String BASE36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public String toBase36(long num) {
+        StringBuilder result = new StringBuilder();
+        do {
+            result.insert(0, BASE36.charAt((int) (num % 36)));
+            num /= 36;
+        } while (num > 0);
+        return result.toString();
+    }
+
+    public String generateNewCustomerId() {
+        long timestamp = System.currentTimeMillis();
+        String base36Id = toBase36(timestamp);
+
+        // Pad with leading zeros if the Base36 result is shorter than 7 characters
+        while (base36Id.length() < 7) {
+            base36Id = "0" + base36Id;
+        }
+
+        // Ensure it's exactly 7 characters (truncate extra characters if needed)
+        String id = base36Id.substring(base36Id.length() - 7);
+        
+        if(transactionRepository.findByCustomerId(id).size() > 0)
+            return generateNewCustomerId();
+        else
+            return id;
     }
 
     public void validateReferrals(Transaction transaction) {
@@ -122,19 +155,26 @@ public class TransactionService {
         }
     }
 
+    public String check(Transaction transaction) {
+        return null;
+    }
+
     // Update transaction (including customer information)
+    @Transactional
     public Transaction updateTransaction(Long id, Transaction updatedTransaction) {
         Transaction existingTransaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found with ID: " + id));
 
-        // Update transaction fields
+        // Update basic fields
         existingTransaction.setCustomerName(updatedTransaction.getCustomerName());
-        existingTransaction.setCustomerId(updatedTransaction.getCustomerId());
-        existingTransaction.setReferralId(updatedTransaction.getReferralId());
+        existingTransaction.setJoinedDate(updatedTransaction.getJoinedDate());
         existingTransaction.setReferredCustomerId1(updatedTransaction.getReferredCustomerId1());
         existingTransaction.setReferredCustomerId2(updatedTransaction.getReferredCustomerId2());
-        existingTransaction.setDate(updatedTransaction.getDate());
-        existingTransaction.setDetails(updatedTransaction.getDetails());
+
+        // Update details
+        if (updatedTransaction.getDetails() != null) {
+            existingTransaction.setDetails(updatedTransaction.getDetails());
+        }
 
         return transactionRepository.save(existingTransaction);
     }

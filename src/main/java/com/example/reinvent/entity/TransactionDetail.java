@@ -20,6 +20,7 @@ public class TransactionDetail {
     private int quantity;
     private double amount;
     private double cost;
+    private String date;
 
     @ManyToOne
     @JoinColumn(name = "transactions_id", nullable = true)

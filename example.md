@@ -27,13 +27,11 @@
    /api/transactions/date/{date}
    ```
 
-5. **Get Transactions by Year and Month**
+5. **Get Transactions by Referrals**
    <br><span style="color:lightgreen">**GET**</span> 
    ```http
-   /api/transactions/yearmonth/{year}/{month}
+   /api/transactions/referrals/{referralId}
    ```
-   Example: /api/transactions/yearmonth/2024/3
-   Response: List of transactions for the specified year and month
 
 6. **Get Transactions by First Referred Customer**
    <br><span style="color:lightgreen">**GET**</span> 
@@ -59,6 +57,17 @@
    Example: /api/transactions/referralid/030524A
    Response: List of transactions with the exact referral ID
 
+9. **Get New Referral ID**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/customerid/new   
+   ```
+
+10. **Get New Customer ID**
+   <br><span style="color:lightgreen">**GET**</span> 
+   ```http
+   /api/transactions/referralid/new
+   ```
 ---
 
 #### Add a New Transaction with Referral
@@ -70,16 +79,43 @@
 Body:
 {
     "customerName": "Alice",
-    "customerId": "CUST-12402A",
-    "referralId": "NA",
-    "referredBy":"NA",
+    "customerId": "123ABCD",
+    "referralId": "01501A",
     "date": "2024-12-02",
     "details": [
         { "productName": "Product A", "quantity": 2, "amount": 20.50, "cost": 10.25 },
         { "productName": "Product B", "quantity": 3, "amount": 30.75, "cost": 15.50 }
     ],
-    "referredCustomerId1": "CUST-12402A" // Referral logic
+    "referredCustomerId1": "1234ABC"
 }
+```
+
+#### Add a New Many Transactions
+<span style="color:yellow">**POST**</span> 
+```http
+/api/transactions/all
+```
+```json
+Body:
+[
+   {
+       "customerName": "Alice",
+      "customerId": "123ABCD",
+      "referralId": "01501A",
+      "date": "2024-12-02",
+      "details": [
+         { "productName": "Product A", "quantity": 2, "amount": 20.50, "cost": 10.25 },
+         { "productName": "Product B", "quantity": 3, "amount": 30.75, "cost": 15.50 }
+      ],
+      "referredCustomerId1": "1234ABC"
+   },
+   {
+      <!-- details -->
+   },
+   {
+      <!-- details -->
+   }
+]
 ```
 ---
 
@@ -91,12 +127,11 @@ Body:
 ```json
 Body:
 {
-    "customerName": "Updated Customer Name",
-    "customerId": "CUST-12402A",
+    "customerName": "Arvind",
+    "customerId": "12402A",
     "referralId": "020521A",
-    "referredBy":"NA",
-    "referredCustomerId1": "CUST-12402B",
-    "referredCustomerId2": "CUST-12402C",
+    "referredCustomerId1": "12402B",
+    "referredCustomerId2": "12402C",
     "date": "2024-12-02",
     "details": [
         { "productName": "Updated Product A", "quantity": 5, "amount": 50.00, "cost": 25.00 }
