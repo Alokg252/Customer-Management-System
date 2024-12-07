@@ -1,70 +1,249 @@
-// Initialize IndexedDB
-let db;
-const DB_NAME = 'transactionDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'transactions';
+// Global IndexedDB variables
+let db; // Database connection object
+const STORE_NAME = 'transactions'; // Name of our object store (like a table in SQL)
+const DB_NAME = 'transactionDB'; // Name of our database
+const DB_VERSION = 1; // Database version - increment this when changing database structure
 
-const request = indexedDB.open(DB_NAME, DB_VERSION);
+/**
+ * Initialize IndexedDB database
+ * IndexedDB is a low-level API for client-side storage of significant amounts of structured data
+ * It's like SQLite but built into the browser
+ */
+async function initDB() {
+    return new Promise((resolve, reject) => {
+        // Open a connection to the database (creates it if it doesn't exist)
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-request.onerror = (event) => {
-    console.error('IndexedDB error:', event.target.error);
-};
+        // Handle database connection errors
+        request.onerror = (event) => {
+            console.error('Error opening database:', event.target.error);
+            reject(event.target.error);
+        };
 
-request.onupgradeneeded = (event) => {
-    db = event.target.result;
+        // Called when connection is successful
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            console.log('IndexedDB connected successfully');
+            resolve(db);
+        };
+
+        // Called when database needs to be created/upgraded
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            
+            // Create object store if it doesn't exist (like creating a table)
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                
+                // Create indexes for searching (like creating indexes in SQL)
+                store.createIndex('customerName', 'customerName', { unique: false });
+                store.createIndex('customerId', 'customerId', { unique: false });
+                store.createIndex('mobile', 'mobile', { unique: false });
+                store.createIndex('referralId', 'referralId', { unique: false });
+                console.log('Database structure created');
+            }
+        };
+    });
+}
+
+/**
+ * Clear only IndexedDB data
+ * This function will remove all client-side stored data
+ */
+async function clearIndexedDBOnly() {
+    showClearConfirmation();
+}
+
+function showClearConfirmation() {
+    const clearButton = document.querySelector('.clear-data-container > .warning-button');
+    const confirmationBox = document.getElementById('clear-confirmation-box');
+    clearButton.style.display = 'none';
+    confirmationBox.classList.remove('hidden');
+    document.getElementById('clear-confirmation').value = ''; // Clear any previous input
+    document.getElementById('clear-confirmation').focus(); // Focus the input
+}
+
+function cancelClear() {
+    const clearButton = document.querySelector('.clear-data-container > .warning-button');
+    const confirmationBox = document.getElementById('clear-confirmation-box');
+    clearButton.style.display = 'block';
+    confirmationBox.classList.add('hidden');
+}
+
+async function confirmClear() {
+    const confirmInput = document.getElementById('clear-confirmation');
+    const confirmText = confirmInput.value.toLowerCase().trim();
     
-    // Create object store for transactions if it doesn't exist
-    if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-        
-        // Create indexes for transaction search
-        store.createIndex('customerName', 'customerName', { unique: false });
-        store.createIndex('customerId', 'customerId', { unique: false });
-        store.createIndex('mobile', 'mobile', { unique: false });
-        store.createIndex('referralId', 'referralId', { unique: false });
-        store.createIndex('date', 'date', { unique: false });
-        store.createIndex('amount', 'amount', { unique: false });
-        store.createIndex('status', 'status', { unique: false });
-        
-        // Compound indexes for better search
-        store.createIndex('customer_date', ['customerName', 'date'], { unique: false });
-        store.createIndex('customer_amount', ['customerName', 'amount'], { unique: false });
+    if (confirmText !== 'clear') {
+        alert("Please type 'clear' to confirm data deletion");
+        return;
     }
-};
 
-request.onsuccess = (event) => {
-    db = event.target.result;
-    console.log('IndexedDB connected successfully');
-};
-
-// Add event listeners when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initDB();
-    
-    // Add event listener for search button
-    const searchButton = document.querySelector('#search-transactions button');
-    if (searchButton) {
-        searchButton.addEventListener('click', searchTransactions);
+    if (!confirm('WARNING: This will delete all locally stored transaction data. This action cannot be undone. Are you sure?')) {
+        cancelClear(); // Hide the confirmation box if user cancels
+        return;
     }
-    
-    // Add event listener for search input (optional: search as you type)
-    const searchInput = document.querySelector('#search-input');
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                searchTransactions();
+
+    try {
+        // Close current database connection if it exists
+        if (db) {
+            db.close();
+            db = null;
+        }
+        
+        // Request to delete the database
+        const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
+        
+        deleteRequest.onsuccess = () => {
+            console.log('IndexedDB database deleted successfully');
+            alert('Local data has been cleared successfully. The page will now reload.');
+            // Reload page to reinitialize IndexedDB
+            window.location.reload();
+        };
+
+        deleteRequest.onerror = (event) => {
+            console.error('Error deleting IndexedDB database:', event.target.error);
+            alert('Error clearing local data. Please try again.');
+            cancelClear(); // Hide the confirmation box on error
+        };
+
+    } catch (error) {
+        console.error('Error in clearIndexedDBOnly:', error);
+        alert('Error clearing local data. Please try again.');
+        cancelClear(); // Hide the confirmation box on error
+    }
+}
+
+/**
+ * Save a new transaction to IndexedDB
+ * @param {Object} transaction - Transaction object to save
+ */
+async function saveTransaction(transaction) {
+    if (!db) {
+        throw new Error('Database not initialized');
+    }
+
+    return new Promise((resolve, reject) => {
+        // Start a transaction (not to be confused with our business transactions)
+        // 'readwrite' means we want to write data
+        const dbTransaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = dbTransaction.objectStore(STORE_NAME);
+
+        // Attempt to add the transaction to the store
+        const request = store.add(transaction);
+
+        request.onsuccess = () => {
+            console.log('Transaction saved successfully');
+            resolve(request.result);
+        };
+
+        request.onerror = () => {
+            console.error('Error saving transaction:', request.error);
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Retrieve all transactions from IndexedDB
+ * @returns {Promise<Array>} Array of transactions
+ */
+async function getAllTransactions() {
+    if (!db) {
+        throw new Error('Database not initialized');
+    }
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            resolve(request.result || []);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Search transactions using an index
+ * @param {string} indexName - Name of the index to search (e.g., 'customerName')
+ * @param {string} searchValue - Value to search for
+ */
+async function searchByIndex(indexName, searchValue) {
+    if (!db) {
+        throw new Error('Database not initialized');
+    }
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const index = store.index(indexName);
+        const request = index.getAll(searchValue);
+
+        request.onsuccess = () => {
+            resolve(request.result || []);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
+}
+
+async function loadAllTransactions() {
+    if (!db) {
+        console.log('Database not initialized yet');
+        return;
+    }
+
+    try {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        
+        const transactions = await new Promise((resolve, reject) => {
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject(request.error);
+        });
+
+        const container = document.getElementById('all-transactions');
+        if (!container) {
+            console.log('Container not found');
+            return;
+        }
+
+        container.innerHTML = '';
+        
+        if (transactions.length === 0) {
+            container.innerHTML = '<p>No transactions found</p>';
+            return;
+        }
+        
+        transactions.forEach(transaction => {
+            const card = createTransactionCard(transaction);
+            if (card) {
+                container.appendChild(card);
             }
         });
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+        const container = document.getElementById('all-transactions');
+        if (container) {
+            container.innerHTML = '<p>Error loading transactions</p>';
+        }
     }
-    
-    // Add event listener for customer search input
-    const customerSearchInput = document.getElementById('customer-search-input');
-    if (customerSearchInput) {
-        customerSearchInput.addEventListener('input', handleSearchInput);
-    }
-});
+}
 
 async function searchTransactions() {
+    if (!db) {
+        alert('Database not initialized. Please refresh the page.');
+        return;
+    }
+
     const searchType = document.querySelector('#search-transactions #search-type').value;
     const searchValue = document.querySelector('#search-transactions #search-input').value.trim();
     
@@ -154,7 +333,8 @@ function displaySearchResults(results, searchValue) {
             <td>${highlightMatch(transaction.customerId || '', searchValue)}</td>
             <td>${highlightMatch(transaction.mobile || '', searchValue)}</td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="viewTransaction('${transaction.id}')">View Details</button>
+                <button class="btn btn-sm btn-info" onclick="viewTransaction('${transaction.id}')">View Transaction</button>
+                <button class="btn btn-sm btn-primary" onclick="showCustomerDetails('${transaction.customerId}')">Customer History</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -179,45 +359,40 @@ async function getAllRecords(store) {
     });
 }
 
-function viewTransaction(transactionId) {
+async function viewTransaction(transactionId) {
+    if (!db) {
+        alert('Database not initialized. Please refresh the page.');
+        return;
+    }
+
     try {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(transactionId);
+        const result = await new Promise((resolve, reject) => {
+            const request = store.get(transactionId);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
 
-        request.onsuccess = function(event) {
-            const transactionData = event.target.result;
-            if (transactionData) {
-                showTransactionDetails(transactionData);
-            } else {
-                showError('Transaction not found');
-            }
-        };
+        if (!result) {
+            alert('Transaction not found');
+            return;
+        }
 
-        request.onerror = function(event) {
-            console.error('Error loading transaction:', event.target.error);
-            showError('Failed to load transaction details');
-        };
-    } catch (error) {
-        console.error('Error viewing transaction:', error);
-        showError('Failed to view transaction details');
-    }
-}
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content transaction-details';
 
-function showTransactionDetails(transaction) {
-    // Create modal for transaction details
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="close">&times;</span>
+        const transactionDate = new Date(result.date);
+        modalContent.innerHTML = `
             <h2>Transaction Details</h2>
             <div class="transaction-info">
-                <p><strong>Date:</strong> ${new Date(transaction.date).toLocaleDateString()}</p>
-                <p><strong>Customer Name:</strong> ${transaction.customerName}</p>
-                <p><strong>Customer ID:</strong> ${transaction.customerId}</p>
-                <p><strong>Mobile:</strong> ${transaction.mobile}</p>
-                <p><strong>Status:</strong> <span class="status-badge ${transaction.status.toLowerCase()}">${transaction.status}</span></p>
+                <p><strong>Date:</strong> ${transactionDate.toLocaleDateString()} ${transactionDate.toLocaleTimeString()}</p>
+                <p><strong>Customer Name:</strong> ${result.customerName}</p>
+                <p><strong>Customer ID:</strong> ${result.customerId}</p>
+                <p><strong>Mobile:</strong> ${result.mobile}</p>
+            </div>
+            <div class="products-section">
                 <h3>Products</h3>
                 <table class="products-table">
                     <thead>
@@ -229,35 +404,199 @@ function showTransactionDetails(transaction) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${transaction.products.map(product => `
+                        ${result.products.map(product => `
                             <tr>
                                 <td>${product.name}</td>
                                 <td>${product.quantity}</td>
-                                <td>₹${product.price.toFixed(2)}</td>
-                                <td>₹${(product.quantity * product.price).toFixed(2)}</td>
+                                <td>₹${product.amount.toFixed(2)}</td>
+                                <td>₹${(product.quantity * product.amount).toFixed(2)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"><strong>Total Amount</strong></td>
+                            <td><strong>₹${result.totalAmount.toFixed(2)}</strong></td>
+                        </tr>
+                    </tfoot>
                 </table>
-                <h3>Total Amount: ₹${transaction.totalAmount.toFixed(2)}</h3>
             </div>
+        `;
+
+        // Add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '×';
+        closeButton.onclick = closeModal;
+        modalContent.appendChild(closeButton);
+
+        // Show modal
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+    } catch (error) {
+        console.error('Error viewing transaction:', error);
+        alert('Error loading transaction details');
+    }
+}
+
+async function showCustomerDetails(customerId) {
+    if (!db) {
+        console.error('Database not initialized');
+        return;
+    }
+
+    try {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const customerIndex = store.index('customerId');
+        
+        const customerTransactions = await new Promise((resolve, reject) => {
+            const request = customerIndex.getAll(customerId);
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject(request.error);
+        });
+
+        if (!customerTransactions || customerTransactions.length === 0) {
+            alert('No transactions found for this customer');
+            return;
+        }
+
+        // Sort transactions by date (newest first)
+        customerTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Calculate total amount spent
+        const totalSpent = customerTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+
+        // Get customer info from first transaction
+        const customer = customerTransactions[0];
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'customer-details-modal';
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2>Customer Details</h2>
+                <button onclick="closeModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="customer-info">
+                <p><strong>Name:</strong> ${customer.customerName || 'N/A'}</p>
+                <p><strong>Customer ID:</strong> ${customer.customerId || 'N/A'}</p>
+                <p><strong>Mobile:</strong> ${customer.mobile || 'N/A'}</p>
+                <p><strong>Total Spent:</strong> ₹${totalSpent.toFixed(2)}</p>
+            </div>
+            <div class="transaction-history">
+                <h3>Transaction History</h3>
+                <div class="transaction-list">
+                    ${customerTransactions.map(t => `
+                        <div class="transaction-item">
+                            <div class="transaction-header">
+                                <span class="date">${formatDate(t.date)}</span>
+                                <span class="amount">₹${(parseFloat(t.totalAmount) || 0).toFixed(2)}</span>
+                            </div>
+                            ${t.products ? `
+                                <div class="products-list">
+                                    ${t.products.map(p => `
+                                        <div class="product-item">
+                                            <span>${p.name}</span>
+                                            <span>${p.quantity} × ₹${parseFloat(p.price).toFixed(2)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        // Show modal
+        const modalContainer = document.getElementById('modal-container');
+        modalContainer.innerHTML = '';
+        modalContainer.appendChild(modalContent);
+        modalContainer.style.display = 'flex';
+
+    } catch (error) {
+        console.error('Error showing customer details:', error);
+        alert('Error loading customer details. Please try again.');
+    }
+}
+
+function closeModal() {
+    const modal = document.querySelector('.modal');
+    if (modal) {
+        modal.remove();
+    }
+    const modalContainer = document.getElementById('modal-container');
+    if (modalContainer) {
+        modalContainer.style.display = 'none';
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+function createSearchResultCard(transaction) {
+    const card = document.createElement('div');
+    card.className = 'search-result-card';
+    
+    card.innerHTML = `
+        <div class="customer-info">
+            <h3>${transaction.customerName}</h3>
+            <p>Customer ID: ${transaction.customerId}</p>
+            <p>Mobile: ${transaction.mobile}</p>
+            <p>Referral ID: ${transaction.referralId}</p>
+        </div>
+        <div class="actions">
+            <button onclick="showCustomerDetails('${transaction.customerId}')" class="details-button">Show Details</button>
         </div>
     `;
+    
+    return card;
+}
 
-    // Add close functionality
-    const closeBtn = modal.querySelector('.close');
-    closeBtn.onclick = function() {
-        document.body.removeChild(modal);
-    };
-
-    // Close when clicking outside the modal
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            document.body.removeChild(modal);
+// Function to clear browser sync data
+function clearBrowserData() {
+    try {
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Clear sessionStorage
+        sessionStorage.clear();
+        
+        // Clear cookies
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf('=');
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
-    };
+        
+        // Clear cache data
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    caches.delete(name);
+                });
+            });
+        }
 
-    document.body.appendChild(modal);
+        alert('Browser sync data cleared successfully!');
+    } catch (error) {
+        console.error('Error clearing browser data:', error);
+        alert('Error clearing browser data');
+    }
 }
 
 function showError(message) {
@@ -343,6 +682,11 @@ function showSection(sectionId) {
 }
 
 async function loadAllTransactionsForSearch() {
+    if (!db) {
+        alert('Database not initialized. Please refresh the page.');
+        return;
+    }
+
     try {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
@@ -365,6 +709,11 @@ async function loadAllTransactionsForSearch() {
 }
 
 async function handleNewTransaction(event) {
+    if (!db) {
+        alert('Database not initialized. Please refresh the page.');
+        return;
+    }
+
     event.preventDefault();
     
     const products = [];
@@ -381,24 +730,9 @@ async function handleNewTransaction(event) {
         totalAmount += product.quantity * product.amount;
     });
 
-    // Get the date from input or use current date if empty
-    const dateInput = document.getElementById('transactionDate');
-    let transactionDate;
-    
-    if (dateInput.value) {
-        // If user provided a date, use it
-        transactionDate = new Date(dateInput.value);
-        // Set time to noon to avoid timezone issues
-        transactionDate.setHours(12, 0, 0, 0);
-    } else {
-        // If no date provided, use current date
-        transactionDate = new Date();
-        transactionDate.setHours(12, 0, 0, 0);
-        // Also update the input field with today's date
-        dateInput.value = transactionDate.toISOString().split('T')[0];
-    }
-
+    // Generate unique ID using timestamp
     const transaction = {
+        id: Date.now().toString(),
         customerName: document.getElementById('customerName').value,
         customerId: document.getElementById('customerId').value,
         referralId: document.getElementById('referralId').value,
@@ -406,7 +740,7 @@ async function handleNewTransaction(event) {
         referredBy: document.getElementById('referredBy').value,
         referredCustomerId1: document.getElementById('referredCustomerId1').value,
         referredCustomerId2: document.getElementById('referredCustomerId2').value,
-        date: transactionDate.toISOString(),
+        date: new Date().toISOString(),
         joinedDate: new Date().toISOString().split('T')[0],
         products: products,
         totalAmount: totalAmount,
@@ -526,17 +860,27 @@ function generateReferralId() {
 }
 
 async function loadAllTransactions() {
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    
+    if (!db) {
+        console.log('Database not initialized yet');
+        return;
+    }
+
     try {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        
         const transactions = await new Promise((resolve, reject) => {
             const request = store.getAll();
-            request.onsuccess = () => resolve(request.result);
+            request.onsuccess = () => resolve(request.result || []);
             request.onerror = () => reject(request.error);
         });
-        
+
         const container = document.getElementById('all-transactions');
+        if (!container) {
+            console.log('Container not found');
+            return;
+        }
+
         container.innerHTML = '';
         
         if (transactions.length === 0) {
@@ -545,11 +889,17 @@ async function loadAllTransactions() {
         }
         
         transactions.forEach(transaction => {
-            container.appendChild(createTransactionCard(transaction));
+            const card = createTransactionCard(transaction);
+            if (card) {
+                container.appendChild(card);
+            }
         });
     } catch (error) {
         console.error('Error loading transactions:', error);
-        alert('Error loading transactions');
+        const container = document.getElementById('all-transactions');
+        if (container) {
+            container.innerHTML = '<p>Error loading transactions</p>';
+        }
     }
 }
 
@@ -580,36 +930,34 @@ window.addEventListener('online', async () => {
 });
 
 function createTransactionCard(transaction) {
+    if (!transaction) {
+        console.log('Invalid transaction data');
+        return null;
+    }
+
     const card = document.createElement('div');
     card.className = 'transaction-card';
     
-    let productsHtml = '<div class="product-list">';
-    transaction.products.forEach(product => {
-        productsHtml += `
-            <div class="product-item">
-                <span>${product.name}</span>
-                <span>${product.quantity} × ₹${product.price.toFixed(2)}</span>
-                <span>₹${(product.quantity * product.price).toFixed(2)}</span>
+    try {
+        card.innerHTML = `
+            <div class="transaction-header">
+                <h3>${transaction.customerName || 'Unknown Customer'}</h3>
+                <span class="transaction-date">${formatDate(transaction.date)}</span>
+            </div>
+            <div class="transaction-details">
+                <p><strong>Customer ID:</strong> ${transaction.customerId || 'N/A'}</p>
+                <p><strong>Mobile:</strong> ${transaction.mobile || 'N/A'}</p>
+                <p><strong>Total Amount:</strong> ₹${(transaction.totalAmount || 0).toFixed(2)}</p>
+            </div>
+            <div class="transaction-actions">
+                <button onclick="viewTransaction('${transaction.id}')" class="btn btn-sm btn-info">View Details</button>
             </div>
         `;
-    });
-    productsHtml += '</div>';
-
-    card.innerHTML = `
-        <h3>${transaction.customerName}</h3>
-        <p>Customer ID: ${transaction.customerId}</p>
-        <p>Referral ID: ${transaction.referralId}</p>
-        <p>Mobile: ${transaction.mobile}</p>
-        <p>Joined Date: ${transaction.joinedDate}</p>
-        ${transaction.referredBy ? `<p>Referred By: ${transaction.referredBy}</p>` : ''}
-        ${transaction.referredCustomerId1 ? `<p>Referred Customer 1: ${transaction.referredCustomerId1}</p>` : ''}
-        ${transaction.referredCustomerId2 ? `<p>Referred Customer 2: ${transaction.referredCustomerId2}</p>` : ''}
-        <h4>Products:</h4>
-        ${productsHtml}
-        <h4 class="total">Total Amount: ₹${transaction.totalAmount.toFixed(2)}</h4>
-    `;
-    
-    return card;
+        return card;
+    } catch (error) {
+        console.error('Error creating transaction card:', error);
+        return null;
+    }
 }
 
 // Customer Search Functions for New Transaction
@@ -637,6 +985,11 @@ function handleSearchInput() {
 }
 
 async function searchCustomerForNewTransaction(searchValue) {
+    if (!db) {
+        alert('Database not initialized. Please refresh the page.');
+        return;
+    }
+
     if (!searchValue) return;
 
     const searchType = document.getElementById('search-type').value;
@@ -797,3 +1150,39 @@ function enableProductSection() {
         addProductButton.disabled = false;
     }
 }
+
+// Initialize when the page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await initDB();
+        console.log('Database initialized, loading transactions...');
+        await loadAllTransactions();
+        // Load initial data
+        loadAllTransactionsForSearch();
+        
+        // Add event listeners when the page loads
+        // Add event listener for search button
+        const searchButton = document.querySelector('#search-transactions button');
+        if (searchButton) {
+            searchButton.addEventListener('click', searchTransactions);
+        }
+        
+        // Add event listener for search input (optional: search as you type)
+        const searchInput = document.querySelector('#search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchTransactions();
+                }
+            });
+        }
+        
+        // Add event listener for customer search input
+        const customerSearchInput = document.getElementById('customer-search-input');
+        if (customerSearchInput) {
+            customerSearchInput.addEventListener('input', handleSearchInput);
+        }
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
+});

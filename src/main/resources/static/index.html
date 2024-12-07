@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="alerts"></div>
+    <div id="modal-container" class="modal-container"></div>
     <div class="container">
         <header>
             <h1>Transaction Management System</h1>
@@ -117,6 +118,14 @@
             <section id="transaction-list" class="section hidden">
                 <h2>All Transactions</h2>
                 <div id="all-transactions" class="results-container"></div>
+                <div class="clear-data-container">
+                    <div id="clear-confirmation-box" class="clear-confirmation-box hidden">
+                        <input type="text" id="clear-confirmation" placeholder="Type 'clear' to confirm" class="clear-input">
+                        <button onclick="confirmClear()" class="warning-button small">Confirm</button>
+                        <button onclick="cancelClear()" class="cancel-button small">Cancel</button>
+                    </div>
+                    <button onclick="showClearConfirmation()" class="warning-button small">Clear Local Data</button>
+                </div>
             </section>
         </main>
     </div>
