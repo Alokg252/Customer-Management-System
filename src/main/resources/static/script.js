@@ -288,6 +288,12 @@ function resetForm() {
         input.classList.remove('readonly-input');
     });
     
+    // Clear the date input
+    const dateInput = document.getElementById('transactionDate');
+    if (dateInput) {
+        dateInput.value = '';
+    }
+    
     // Re-enable ID generation buttons
     const generateCustomerIdBtn = document.querySelector('button[onclick="generateAndSetCustomerId()"]');
     const generateReferralIdBtn = document.querySelector('button[onclick="generateAndSetReferralId()"]');
@@ -375,6 +381,23 @@ async function handleNewTransaction(event) {
         totalAmount += product.quantity * product.amount;
     });
 
+    // Get the date from input or use current date if empty
+    const dateInput = document.getElementById('transactionDate');
+    let transactionDate;
+    
+    if (dateInput.value) {
+        // If user provided a date, use it
+        transactionDate = new Date(dateInput.value);
+        // Set time to noon to avoid timezone issues
+        transactionDate.setHours(12, 0, 0, 0);
+    } else {
+        // If no date provided, use current date
+        transactionDate = new Date();
+        transactionDate.setHours(12, 0, 0, 0);
+        // Also update the input field with today's date
+        dateInput.value = transactionDate.toISOString().split('T')[0];
+    }
+
     const transaction = {
         customerName: document.getElementById('customerName').value,
         customerId: document.getElementById('customerId').value,
@@ -383,9 +406,11 @@ async function handleNewTransaction(event) {
         referredBy: document.getElementById('referredBy').value,
         referredCustomerId1: document.getElementById('referredCustomerId1').value,
         referredCustomerId2: document.getElementById('referredCustomerId2').value,
+        date: transactionDate.toISOString(),
         joinedDate: new Date().toISOString().split('T')[0],
-        details: products,
-        totalAmount: totalAmount
+        products: products,
+        totalAmount: totalAmount,
+        status: 'completed'
     };
 
     if (products.length === 0) {
@@ -559,12 +584,12 @@ function createTransactionCard(transaction) {
     card.className = 'transaction-card';
     
     let productsHtml = '<div class="product-list">';
-    transaction.details.forEach(product => {
+    transaction.products.forEach(product => {
         productsHtml += `
             <div class="product-item">
                 <span>${product.name}</span>
-                <span>${product.quantity} × ₹${product.amount}</span>
-                <span>₹${(product.quantity * product.amount).toFixed(2)}</span>
+                <span>${product.quantity} × ₹${product.price.toFixed(2)}</span>
+                <span>₹${(product.quantity * product.price).toFixed(2)}</span>
             </div>
         `;
     });
