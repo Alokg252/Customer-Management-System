@@ -62,12 +62,14 @@
    ```http
    /api/transactions/customerid/new   
    ```
-
+   <br>
 10. **Get New Customer ID**
    <br><span style="color:lightgreen">**GET**</span> 
-   ```http
-   /api/transactions/referralid/new
-   ```
+      ```
+      /api/transactions/referralid/new
+      ```
+   <br>
+
 ---
 
 #### Add a New Transaction with Referral

@@ -2,15 +2,13 @@ package com.example.reinvent.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.reinvent.entity.Transaction;
-import com.example.reinvent.entity.TransactionDetail;
-
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     
-    @Query("SELECT DISTINCT t FROM Transaction t WHERE " +
+    @Query("SELECT t FROM Transaction t WHERE " +
            "LOWER(t.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(t.customerId) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(t.mobile) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
@@ -29,15 +27,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t FROM Transaction t WHERE LOWER(t.referralId) LIKE LOWER(CONCAT('%', :referralId, '%'))")
     List<Transaction> findByReferralIdContainingIgnoreCase(@Param("referralId") String referralId);
 
-    List<Transaction> findByCustomerName(String customerName);
     List<Transaction> findByCustomerId(String customerId);
+    List<Transaction> findByReferralId(String referralId);
     List<Transaction> findByJoinedDate(String date);
+    List<Transaction> findByCustomerName(String name);
+    List<Transaction> findByDate(String name);
+    List<Transaction> findByReferredCustomerId1(String referredCustomerId1);
+    List<Transaction> findByReferredCustomerId2(String referredCustomerId2);
     
     @Query("SELECT t FROM Transaction t WHERE t.referredCustomerId1 = :referralId OR t.referredCustomerId2 = :referralId")
     List<Transaction> findByReferredCustomerId1OrReferredCustomerId2(@Param("referralId") String referralId);
-    
-    List<Transaction> findByReferredCustomerId1(String referredCustomerId1);
-    List<Transaction> findByReferredCustomerId2(String referredCustomerId2);    
-    List<Transaction> findByReferralId(String referralId);
-    
 }

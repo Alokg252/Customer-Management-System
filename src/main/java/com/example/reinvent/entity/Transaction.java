@@ -5,6 +5,9 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ */
 @Data
 @Entity
 @Table(name = "transactions")
@@ -16,38 +19,39 @@ public class Transaction {
 
     private String customerName;
 
+    @Column(unique = true, nullable = false)
     private String customerId;
 
+    @Column(unique = true, nullable = true)
     private String referralId;
 
-    private String mobile;
-
-    private String referredBy;
-
+    @Column(unique = true, nullable = true)
     private String referredCustomerId1;
 
+    @Column(unique = true, nullable = true)
     private String referredCustomerId2;
     
-    private String joinedDate;
+    private String date;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "transaction_id")
+    @JoinColumn(name = "transaction_id", nullable = false) // This is the foreign key in TransactionDetail table
     private List<TransactionDetail> details = new ArrayList<>();
 
-    public void setDetails(List<TransactionDetail> details) {
-        if (this.details == null) {
-            this.details = new ArrayList<>();
-        }
-        this.details.clear();
-        if (details != null) {
-            this.details.addAll(details);
-        }
+    // Helper method to add details
+    public void addDetail(TransactionDetail detail) {
+        details.add(detail);
     }
 
-    public List<TransactionDetail> getDetails() {
-        if (this.details == null) {
-            this.details = new ArrayList<>();
+    // Helper method to remove details
+    public void removeDetail(TransactionDetail detail) {
+        details.remove(detail);
+    }
+
+    // Helper method to update details
+    public void updateDetails(List<TransactionDetail> newDetails) {
+        this.details.clear();
+        if (newDetails != null) {
+            this.details.addAll(newDetails);
         }
-        return this.details;
     }
 }

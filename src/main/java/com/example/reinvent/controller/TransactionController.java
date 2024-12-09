@@ -1,115 +1,75 @@
 package com.example.reinvent.controller;
 
+import com.example.reinvent.entity.Transaction;
+import com.example.reinvent.service.CodeGenerators;
+import com.example.reinvent.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import com.example.reinvent.entity.Transaction;
-import com.example.reinvent.repository.TransactionRepository;
-import com.example.reinvent.service.TransactionService;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/transactions")
+@CrossOrigin(origins = "*")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
-    
-    @Autowired
-    private TransactionRepository transactionRepository;
 
-    @GetMapping
-    public List<Transaction> getAllTransactions() {
-        return transactionService.getAllTransactions();
+    @GetMapping("/search")
+    public ResponseEntity<List<Transaction>> searchTransactions(@RequestParam String query) {
+        return ResponseEntity.ok(transactionService.searchTransactions(query));
     }
 
-    @GetMapping("/referralid/new")
-    public String getNewReferralId() {
-        return transactionService.generateNewReferralId();
-    }
-
-    @GetMapping("/customerid/new")
-    public String getNewCustomerId() {
-        return transactionService.generateNewCustomerId();
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<Transaction>> findByCustomerId(@PathVariable String customerId) {
+        return ResponseEntity.ok(transactionService.findByCustomerIdContainingIgnoreCase(customerId));
     }
 
     @GetMapping("/customer/name/{name}")
-    public List<Transaction> getTransactionsByCustomerName(@PathVariable String name) {
-        return transactionService.getTransactionsByCustomerName(name);
+    public ResponseEntity<List<Transaction>> findByCustomerName(@PathVariable String name) {
+        return ResponseEntity.ok(transactionService.findByCustomerNameContainingIgnoreCase(name));
     }
 
-    @GetMapping("/customer/id/{id}")
-    public List<Transaction> getTransactionsByCustomerId(@PathVariable String id) {
-        return transactionService.getTransactionsByCustomerId(id);
+    @GetMapping("/mobile/{mobile}")
+    public ResponseEntity<List<Transaction>> findByMobile(@PathVariable String mobile) {
+        return ResponseEntity.ok(transactionService.findByMobileContainingIgnoreCase(mobile));
+    }
+
+    @GetMapping("/referral/{referralId}")
+    public ResponseEntity<List<Transaction>> findByReferralId(@PathVariable String referralId) {
+        return ResponseEntity.ok(transactionService.findByReferralIdContainingIgnoreCase(referralId));
+    }
+
+    @GetMapping("/customer/{customerId}/transactions")
+    public ResponseEntity<List<Transaction>> getCustomerTransactions(@PathVariable String customerId) {
+        return ResponseEntity.ok(transactionService.getTransactionsByCustomerId(customerId));
+    }
+
+    @GetMapping("/referral/{referralId}/transactions")
+    public ResponseEntity<List<Transaction>> getReferralTransactions(@PathVariable String referralId) {
+        return ResponseEntity.ok(transactionService.getTransactionsByReferralId(referralId));
     }
 
     @GetMapping("/date/{date}")
-    public List<Transaction> getTransactionsByDate(@PathVariable String date) {
-        return transactionService.getTransactionsByDate(date);
+    public ResponseEntity<List<Transaction>> getTransactionsByDate(@PathVariable String date) {
+        return ResponseEntity.ok(transactionService.getTransactionsByDate(date));
     }
 
-    @GetMapping("/referred1/{customerId}")
-    public List<Transaction> getTransactionsByReferredCustomerId1(
-            @PathVariable String customerId) {
-        return transactionService.getTransactionsByReferredCustomerId1(customerId);
+    @GetMapping("/referred/{referralId}")
+    public ResponseEntity<List<Transaction>> getReferredTransactions(@PathVariable String referralId) {
+        return ResponseEntity.ok(transactionService.getTransactionsByReferredCustomerIds(referralId));
     }
 
-    @GetMapping("/referred2/{customerId}")
-    public List<Transaction> getTransactionsByReferredCustomerId2(
-            @PathVariable String customerId) {
-        return transactionService.getTransactionsByReferredCustomerId2(customerId);
+    @GetMapping(value = "/generate/customerId", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> generateCustomerId() {
+        return ResponseEntity.ok(CodeGenerators.generateNewCustomerId());
     }
 
-    @GetMapping("/referralid/{referralId}")
-    public List<Transaction> getTransactionsByReferralId(
-            @PathVariable String referralId) {
-        return transactionService.getTransactionsByReferralId(referralId);
-    }
-    
-    @GetMapping("/referrals/{referralId}")
-    public List<Transaction> getReferrals(@PathVariable String referralId) {
-        return transactionRepository.findByReferredCustomerId1OrReferredCustomerId2(referralId);
-    }
-
-    @PostMapping
-    public Transaction saveTransaction(@RequestBody Transaction transaction) {
-        // Check referral constraints
-        // if (transaction.getReferredCustomerId1() != null && transaction.getReferredCustomerId2() != null) {
-        //     throw new IllegalArgumentException("A customer can refer only two new customers.");
-        // }
-        return transactionService.saveTransaction(transaction);
-    }
-
-    @PostMapping("/all")
-    public List<Transaction> saveAllTransaction(@RequestBody List<Transaction> transactions) {
-        return transactionRepository.saveAll(transactions);
-    }
-    
-    // Update transaction (including customer info)
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateTransaction(@PathVariable Long id, @RequestBody Transaction updatedTransaction) {
-        try {
-            Transaction updated = transactionService.updateTransaction(id, updatedTransaction);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error updating transaction: " + e.getMessage());
-        }
-    }
-
-    // Delete a transaction
-    @DeleteMapping("/{id}")
-    public String deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
-        return "Transaction with ID " + id + " deleted successfully.";
-    }
-
-    // Delete all transactions of a specific customer
-    @DeleteMapping("/customer/{customerId}")
-    public String deleteTransactionsByCustomer(@PathVariable String customerId) {
-        transactionService.deleteTransactionsByCustomer(customerId);
-        return "All transactions for customer ID " + customerId + " deleted successfully.";
+    @GetMapping(value = "/generate/referralId", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> generateReferralId() {
+        return ResponseEntity.ok(CodeGenerators.generateNewReferralId());
     }
 }

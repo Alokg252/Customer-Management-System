@@ -116,3 +116,4 @@ if __name__ == "__main__":
         run_all_tests()
     except requests.exceptions.ConnectionError:
         print("\nError: Could not connect to the server. Make sure the Spring Boot application is running on port 5000.")
+    
