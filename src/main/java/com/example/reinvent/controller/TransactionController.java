@@ -1,14 +1,20 @@
 package com.example.reinvent.controller;
 
 import com.example.reinvent.entity.Transaction;
+import com.example.reinvent.repository.TransactionRepository;
 import com.example.reinvent.service.CodeGenerators;
 import com.example.reinvent.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -18,9 +24,17 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
     @GetMapping("/search")
     public ResponseEntity<List<Transaction>> searchTransactions(@RequestParam String query) {
         return ResponseEntity.ok(transactionService.searchTransactions(query));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<Transaction>> getAllTransections() {
+        return ResponseEntity.ok(transactionRepository.findAll());
     }
 
     @GetMapping("/customer/{customerId}")
@@ -34,8 +48,8 @@ public class TransactionController {
     }
 
     @GetMapping("/mobile/{mobile}")
-    public ResponseEntity<List<Transaction>> findByMobile(@PathVariable String mobile) {
-        return ResponseEntity.ok(transactionService.findByMobileContainingIgnoreCase(mobile));
+    public ResponseEntity<List<Transaction>> getCustomerByMobile(@PathVariable String mobile) {
+        return ResponseEntity.ok(transactionRepository.findByMobile(mobile));
     }
 
     @GetMapping("/referral/{referralId}")
@@ -71,5 +85,37 @@ public class TransactionController {
     @GetMapping(value = "/generate/referralId", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> generateReferralId() {
         return ResponseEntity.ok(CodeGenerators.generateNewReferralId());
+    }
+
+    @PostMapping("")
+    public Transaction saveTransaction(@RequestBody Transaction transaction) {
+        return transactionService.saveTransaction(transaction);
+    }
+
+    @PostMapping("/all")
+    public List<Transaction> saveAllTransactions(@RequestBody List<Transaction> transactions) {
+        return transactionRepository.saveAll(transactions);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Transaction> putMethodName(@PathVariable Long id, @RequestBody Transaction entity) {
+        return ResponseEntity.ok(transactionService.updateTransaction(id, entity));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+
+        if (!transactionService.deleteTransaction(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid ID");
+        }
+        return ResponseEntity.ok("Deleted ID:" + id);
+    }
+
+    @DeleteMapping("customer/{id}")
+    public ResponseEntity<String> deleteByCustomer(@PathVariable String customerId) {
+        if (!transactionService.deleteTransactionsByCustomer(customerId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Customer Id");
+        }
+        return ResponseEntity.ok("Deleted All Transections of Customer:" + customerId);
     }
 }

@@ -1,4 +1,5 @@
-[
+url = "http://127.0.0.1:8090/api/transactions/all"
+data = [
     {
         "customerName": "Alice Smith",
         "date": "04/12/2024",
@@ -91,3 +92,16 @@
         ]
     }
 ]
+
+import requests
+try:
+    res = requests.post(url=url, json=data)
+    # res = requests.get(url="127.0.0.1:8090/api/transactions")
+
+    if res.status_code==200:
+        print(res.text)
+    elif res:
+        print(res.text)
+
+except Exception as e:
+    print(e)

@@ -1,23 +1,25 @@
 package com.example.reinvent.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.example.reinvent.repository.TransactionDetailRepository;
 import com.example.reinvent.repository.TransactionRepository;
 import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.dao.CannotAcquireLockException;
 import com.example.reinvent.entity.Transaction;
+import com.example.reinvent.entity.TransactionDetail;
 
 import org.springframework.stereotype.Service;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 @Service
 public class TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TransactionDetailRepository transactionDetailRepository;
 
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
@@ -48,11 +50,11 @@ public class TransactionService {
     }
     
     public List<Transaction> findByReferralIdContainingIgnoreCase(String customerReferralId){
-        return transactionRepository.searchTransactions(customerReferralId);    
+        return transactionRepository.findByReferralIdContainingIgnoreCase(customerReferralId);    
     }
 
 //-------------------------------------------------
-    
+
 public List<Transaction> getTransactionsByDate(String date) {
         return transactionRepository.findByDate(date);
     }
@@ -82,6 +84,11 @@ public List<Transaction> getTransactionsByDate(String date) {
             System.out.println(e.getClass());
             System.out.println("\n-----------------------------------------------\n");
             System.out.println(e.getMessage());
+        } catch (CannotAcquireLockException e) {
+            System.out.println("\n-----------------------------------------------\n");
+            System.out.println(e.getClass());
+            System.out.println("\n-----------------------------------------------\n");
+            System.out.println(e.getMessage());
         } catch (Exception e) {
             System.out.println("\n-----------------------------------------------\n");
             System.out.println(e.getClass());
@@ -91,9 +98,6 @@ public List<Transaction> getTransactionsByDate(String date) {
 
         return null;
     }
-
-    // Generate unique customer ID (UUID or custom logic)
-    
 
     public void validateReferrals(Transaction transaction) {
         if (transaction.getReferredCustomerId1() != null && transaction.getReferredCustomerId2() != null) {
@@ -123,19 +127,29 @@ public List<Transaction> getTransactionsByDate(String date) {
     }
 
     // Delete a single transaction
-    public void deleteTransaction(Long id) {
+    public boolean deleteTransaction(Long id) {
         if (!transactionRepository.existsById(id)) {
-            throw new IllegalArgumentException("Transaction not found with ID: " + id);
+            return false;
         }
         transactionRepository.deleteById(id);
+        return true;
     }
 
     // Delete all transactions for a specific customer
-    public void deleteTransactionsByCustomer(String customerId) {
+    public boolean deleteTransactionsByCustomer(String customerId) {
         List<Transaction> transactions = transactionRepository.findByCustomerId(customerId);
         if (transactions.isEmpty()) {
-            throw new IllegalArgumentException("No transactions found for customer ID: " + customerId);
+            return false;
         }
         transactionRepository.deleteAll(transactions);
+        return true;
+    }
+
+    public List<TransactionDetail> TransactionDetailsByTransaction(String customerId){
+        List<Transaction> transactions = transactionRepository.findByCustomerId(customerId);
+        if (transactions.isEmpty()) {
+            return null;
+        }
+        return transactionDetailRepository.findByTransactions(transactions.get(0));
     }
 }

@@ -80,9 +80,4 @@ public class CodeGenerators {
             return null;
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println(generateNewCustomerId());
-        System.out.println(generateNewReferralId());
-    }
 }

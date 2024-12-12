@@ -23,6 +23,9 @@ public class Transaction {
     private String customerId;
 
     @Column(unique = true, nullable = true)
+    private String mobile;
+
+    @Column(unique = true, nullable = true)
     private String referralId;
 
     @Column(unique = true, nullable = true)
