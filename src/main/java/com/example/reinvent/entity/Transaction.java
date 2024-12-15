@@ -19,22 +19,29 @@ public class Transaction {
 
     private String customerName;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String customerId;
 
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
     private String mobile;
 
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
     private String referralId;
 
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
+    private String referredBy;
+
+    @Column(nullable = true)
     private String referredCustomerId1;
 
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
     private String referredCustomerId2;
-    
+
     private String date;
+
+    private double totalAmount;
+    private double totalCost;
+    private int occurance;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "transaction_id", nullable = false) // This is the foreign key in TransactionDetail table

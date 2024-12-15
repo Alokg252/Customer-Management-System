@@ -1,0 +1,53 @@
+
+/**
+/**
+ * Script.js
+ * 
+ * This file contains the client-side JavaScript code for the application. It is responsible for handling all the user interactions, making API calls, and updating the UI.
+ * 
+ * The file contains the following functions:
+ * 
+ * 1. loadAllTransactions: This function is called when the page is loaded. It fetches the list of all transactions from the API and displays them on the page.
+ * 
+ * 2. setupEventListeners: This function sets up all the event listeners for the buttons and input fields on the page.
+ * 
+ * 3. searchTransactions: This function is called when the user clicks the search button. It fetches the list of transactions matching the search query from the API and displays them on the page.
+ * 
+ * 4. displaySearchResults: This function displays the search results on the page.
+ * 
+ * 5. viewTransaction: This function is called when the user clicks on a transaction in the search results. It fetches the details of the transaction from the API and displays them on the page.
+ * 
+ * 6. formatDate: This function formats a date string in the format "YYYY-MM-DD" to a human-readable format.
+ * 
+ * 7. showSection: This function shows a section of the page and hides all the other sections.
+ * 
+ * 8. showTransactionForm: This function shows the new transaction form and hides all the other sections.
+ * 
+ * 9. showSearchResults: This function shows the search results section and hides all the other sections.
+ * 
+ * 10. showTransactionList: This function shows the transaction list section and hides all the other sections.
+ * 
+ * 11. showCustomerDetails: This function shows the customer details section and hides all the other sections.
+ * 
+ * 12. showClearConfirmation: This function shows the clear confirmation box and hides all the other sections.
+ * 
+ * 13. cancelClear: This function hides the clear confirmation box and shows the previous section.
+ * 
+ * 14. confirmClear: This function clears the database and shows the transaction list section.
+ * 
+ * 15. handleSearchButtonClick: This function is called when the user clicks the search button. It validates the search query and calls the searchTransactions function.
+ * 
+ * 16. handleSearchInput: This function is called when the user types in the search input field. It validates the search query and calls the searchTransactions function.
+ * 
+ * 17. handleNewTransaction: This function is called when the user submits the new transaction form. It validates the form data and calls the saveTransaction function.
+ * 
+ * 18. saveTransaction: This function saves a new transaction to the database and shows the transaction list section.
+ * 
+ * 19. handleSearchInput: This function is called when the user types in the search input field. It validates the search query and calls the searchTransactions function.
+ * 
+ * 20. handleSearchInput: This function is called when the user types in the search input field. It validates the search query and calls the searchTransactions function.
+ * 
+ * Purpose of file: To handle all the user interactions, make API calls, and update the UI.
+ * 
+ * Every detail: The file contains 20 functions that handle different user interactions, make API calls, and update the UI. The file is the main entry point for the client-side code and is responsible for initializing the application and setting up all the event listeners.
+ */

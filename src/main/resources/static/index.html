@@ -62,17 +62,23 @@
                         <div class="form-group">
                             <label for="referralId">Referral ID:</label>
                             <div class="input-with-button">
-                                <input type="text" id="referralId" required>
+                                <input type="text" id="referralId">
                                 <button type="button" onclick="generateAndSetReferralId()">Generate ID</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="mobile">Mobile:</label>
-                            <input type="tel" id="mobile" required>
+                            <div class="input-with-button">
+                                <input type="tel" id="mobile" required>
+                                <button type="button" onclick="checkMobile(event)">Check</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="referredBy">Referred By:</label>
-                            <input type="text" id="referredBy">
+                            <div class="input-with-button">
+                                <input type="text" id="referredBy">
+                                <button type="button" onclick="checkReferredBy(event)">Check</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="referredCustomerId1">Referred Customer ID 1:</label>
@@ -90,6 +96,7 @@
                         <button type="button" class="secondary-button" onclick="addProductEntry()">Add Product</button>
                         
                         <div class="total-section">
+                            <h4 id="cost-box"><input type="number" id="cost[]" placeholder="total cost"></h4>
                             <h4>Total Amount: <span id="total-amount">₹0.00</span></h4>
                         </div>
                         
@@ -130,5 +137,13 @@
         </main>
     </div>
     <script src="script.js"></script>
+    <script src="s1.js"></script>
+    <script src="s2.js"></script>
+    <script src="s3.js"></script>
+    <script src="s4.js"></script>
+    <script src="s5.js"></script>
+    <script src="s6.js"></script>
+    <script src="s7.js"></script>
+    <script src="s8.js"></script>
 </body>
 </html>

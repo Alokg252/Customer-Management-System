@@ -31,6 +31,10 @@ public class TransactionController {
     public ResponseEntity<List<Transaction>> searchTransactions(@RequestParam String query) {
         return ResponseEntity.ok(transactionService.searchTransactions(query));
     }
+    @GetMapping("/transaction/{id}")
+    public ResponseEntity<Transaction> searchTransactionById(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionRepository.findById(id).get());
+    }
 
     @GetMapping("")
     public ResponseEntity<List<Transaction>> getAllTransections() {
@@ -40,6 +44,16 @@ public class TransactionController {
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Transaction>> findByCustomerId(@PathVariable String customerId) {
         return ResponseEntity.ok(transactionService.findByCustomerIdContainingIgnoreCase(customerId));
+    }
+
+    @GetMapping("/customer/{customerId}/name")
+    public ResponseEntity<String> findNameByCustomerId(@PathVariable String customerId) {
+        return ResponseEntity.ok(transactionRepository.findByCustomerId(customerId).get(0).getCustomerName());
+    }
+
+    @GetMapping("/referral/{referralId}/name")
+    public ResponseEntity<String> findNameByReferralId(@PathVariable String referralId) {
+        return ResponseEntity.ok(transactionRepository.findByReferralId(referralId).get(0).getCustomerName());
     }
 
     @GetMapping("/customer/name/{name}")
@@ -88,13 +102,36 @@ public class TransactionController {
     }
 
     @PostMapping("")
-    public Transaction saveTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<String> saveTransaction(@RequestBody Transaction transaction) {
         return transactionService.saveTransaction(transaction);
     }
 
     @PostMapping("/all")
     public List<Transaction> saveAllTransactions(@RequestBody List<Transaction> transactions) {
         return transactionRepository.saveAll(transactions);
+    }
+
+    @PostMapping("/check/mobile")
+    public String checkMobile(@RequestBody String mobile) {
+        if (transactionRepository.findByMobile(mobile).isEmpty())
+            return "accepted";
+        return ("number already belongs to " + transactionRepository.findByMobile(mobile).get(0).getCustomerName());
+    }
+
+    @PostMapping("/check/referrie")
+    public String checkReferredByString(@RequestBody String referralId) {
+        List<Transaction> referries = transactionRepository.findByReferralId(referralId);
+        if (referries.isEmpty())
+            return "id doesn't exist";
+        else if ((referries.get(0).getReferredCustomerId1() != null)
+                && (referries.get(0).getReferredCustomerId2() == null))
+            return "has already reffered a customer can reffer one more";
+
+        else if ((referries.get(0).getReferredCustomerId1() != null)
+                && (referries.get(0).getReferredCustomerId2() != null))
+            return "has already reffered two customers can't reffer anymore";
+
+        return "acceped";
     }
 
     @PutMapping("/{id}")

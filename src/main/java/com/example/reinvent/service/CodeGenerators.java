@@ -1,11 +1,19 @@
 package com.example.reinvent.service;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.Scanner;
 
 import org.springframework.stereotype.Service;
+
+import com.example.reinvent.entity.Transaction;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 
 
 @Service
@@ -77,6 +85,26 @@ public class CodeGenerators {
             fileWriter.close();
             return referralId;
         } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // receipt creator uncomplete
+    public byte[] generateReceipt(Transaction transaction) throws IOException {
+        try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            doc.add(new Paragraph("customer name: " + transaction.getCustomerName()));
+            doc.add(new Paragraph(""));
+            doc.add(new Paragraph(""));
+            doc.add(new Paragraph(""));
+
+            doc.close();
+
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

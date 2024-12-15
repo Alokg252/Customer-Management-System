@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ReinventApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(ReinventApplication.class, args);
 		System.out.println("apis");
+		
 	}
 }

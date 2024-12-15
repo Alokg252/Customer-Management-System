@@ -248,7 +248,19 @@ input, select {
     background-color: #218838;
 }
 
+.edit-btn{
+    background-color: #0056b3;
+}
+
+.edit-btn:hover{
+    background-color: #3e7cbf;
+}
+
 .total-section {
+    display: flex;
+    gap: 80px;
+    justify-content: end;
+
     margin-top: 2rem;
     text-align: right;
     font-size: 1.2rem;
@@ -256,6 +268,30 @@ input, select {
 
 .total-section h4 {
     color: #28a745;
+}
+
+#detail-btn{
+    color:#0056b3;
+    padding: 3px;
+    border: 1px solid #0056b3;
+    background: none;
+    font-size: small;
+}
+
+#detail-btn:hover{
+    color:#81b9f4;
+    border: 1px solid #81b9f4;
+}
+
+#cost-box{
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    opacity: 0;
+}
+
+#cost-box:hover{
+    opacity: 1;
 }
 
 .product-list {
@@ -599,7 +635,7 @@ button:hover {
 }
 
 .close-btn {
-    background: none;
+    background-color: lightgreen;
     border: none;
     font-size: 24px;
     cursor: pointer;
