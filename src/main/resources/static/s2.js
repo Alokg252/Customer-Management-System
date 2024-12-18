@@ -1,54 +1,5 @@
 
 /**
- * Clear database
- * This function clears the database
- */
-async function clearDatabase() {
-    const confirmInput = document.getElementById('clear-confirmation');
-    const confirmText = confirmInput.value.toLowerCase().trim();
-    
-    if (confirmText !== 'clear') {
-        alert("Please type 'clear' to confirm data deletion");
-        return;
-    }
-
-    if (!confirm('WARNING: This will delete all transaction data. This action cannot be undone. Are you sure?')) {
-        cancelClear();
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/clear`, {
-            method: 'POST'
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to clear database');
-        }
-
-        alert('Database cleared successfully. The page will now reload.');
-        window.location.reload();
-    } catch (error) {
-        console.error('Error clearing database:', error);
-        alert('Error clearing database. Please try again.');
-        cancelClear();
-    }
-}
-
-/**
- * Show clear confirmation
- * This function shows the clear confirmation modal
- */
-function showClearConfirmation() {
-    const clearButton = document.querySelector('.clear-data-container > .warning-button');
-    const confirmationBox = document.getElementById('clear-confirmation-box');
-    clearButton.style.display = 'none';
-    confirmationBox.classList.remove('hidden');
-    document.getElementById('clear-confirmation').value = '';
-    document.getElementById('clear-confirmation').focus();
-}
-
-/**
  * Handle new transaction form submission
  * This function handles the new transaction form submission
  * @param {Event} event - Form submission event
@@ -123,12 +74,13 @@ async function handleNewTransaction(event) {
  */
 async function saveTransaction(transaction) {
     try {
+        let body = JSON.stringify(transaction);
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(transaction)
+            body: body
         });
         
         
@@ -136,6 +88,9 @@ async function saveTransaction(transaction) {
             console.log("------------------err1-------------------")
             alert((await response.text()).toString());
         }else{
+            if(document.getElementById("receipt-check").checked){
+                getReceipt(transaction);
+            }
             return await response;
         }
         return null;

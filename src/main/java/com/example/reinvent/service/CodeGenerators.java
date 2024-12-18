@@ -1,6 +1,8 @@
 package com.example.reinvent.service;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -10,11 +12,20 @@ import java.util.Scanner;
 import org.springframework.stereotype.Service;
 
 import com.example.reinvent.entity.Transaction;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
-
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.TextAlignment;
 
 @Service
 public class CodeGenerators {
@@ -28,6 +39,7 @@ public class CodeGenerators {
         } while (num > 0);
         return result.toString();
     }
+
     public static String generateNewCustomerId() {
 
         long timestamp = new Date().getTime(); // Current time in milliseconds
@@ -42,7 +54,7 @@ public class CodeGenerators {
         return base36Id.substring(base36Id.length() - 7);
     }
 
-//-------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------
 
     public static String generateNewReferralId() {
 
@@ -53,11 +65,20 @@ public class CodeGenerators {
             int month = today.getMonthValue();
             int yearLastDigit = today.getYear() % 10;
 
-            String path = "src/main/resources/static/char.txt";
-
+            String path = "lrc.txt";
             File file = new File(path);
-            Scanner scanner = new Scanner(file);
+            Scanner scanner = null;
 
+            try{
+                scanner = new Scanner(file);
+            }catch (FileNotFoundException e) {
+                System.out.println("created "+file.getName()+" to store last generated referral id");
+                file.createNewFile();
+                // Files.getFileAttributeView(file.toPath(), DosFileAttributeView.class).setHidden(true);
+                scanner = new Scanner(file);
+            }catch(Exception e){
+                System.out.println("idc"+e);
+            }
             char c = '@';
             if (scanner.hasNextLine()) {
                 String s = scanner.nextLine();
@@ -65,7 +86,6 @@ public class CodeGenerators {
                 String mmydd1 = s.substring(0, len - 1); // fetched referalId month year and Date
                 String mmydd2 = String.format("%02d%d%02d", month, yearLastDigit, dayOfMonth); // todays moth year and
                                                                                                // date
-
                 if (mmydd1.equals(mmydd2)) {
                     c = s.charAt(len - 1);
                     if (c < 'a' && c >= 'Z')
@@ -84,23 +104,109 @@ public class CodeGenerators {
             fileWriter.write(referralId);
             fileWriter.close();
             return referralId;
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
+            System.out.println(
+                "error:"+e
+            );
             return null;
         }
     }
 
-    // receipt creator uncomplete
-    public byte[] generateReceipt(Transaction transaction) throws IOException {
-        try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+    // receipt generator
+    public static byte[] generateReceipt(Transaction transaction) throws IOException {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            doc.add(new Paragraph("customer name: " + transaction.getCustomerName()));
-            doc.add(new Paragraph(""));
-            doc.add(new Paragraph(""));
-            doc.add(new Paragraph(""));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
 
-            doc.close();
+            // Add light background and border
+            PdfPage page = pdf.addNewPage();
+            PdfCanvas canvas = new PdfCanvas(page);
+            Rectangle pageSize = page.getPageSize();
+            canvas.fill().setFillColorRgb(0.9f, 0.9f, 0.9f);
+            canvas.rectangle(0, 0, pageSize.getWidth(), pageSize.getHeight()).fill().setFillColorRgb(1f, 1f, 0.95f);
+            canvas.fill();
+
+            canvas.setStrokeColor(ColorConstants.BLACK);
+            canvas.setLineWidth(1);
+            canvas.rectangle(20, 20, pageSize.getWidth() - 40, pageSize.getHeight() - 40).fill()
+                    .setFillColor(ColorConstants.BLACK);
+            canvas.stroke();
+
+            // Shop name at center
+            PdfFont boldFont = PdfFontFactory.createFont("Helvetica-Bold");
+            Paragraph shopName = new Paragraph("INVOICE" + "")
+                    .setFont(boldFont)
+                    .setFontSize(18)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(ColorConstants.DARK_GRAY);
+            document.add(shopName);
+
+            // Date at top-right
+            Paragraph date = new Paragraph(LocalDate.now().toString())
+                    .setFontSize(10)
+                    .simulateBold()
+                    .setFontColor(ColorConstants.DARK_GRAY)
+                    .setTextAlignment(TextAlignment.RIGHT);
+            document.add(date);
+
+            // Customer details at left
+            Paragraph customerDetails = new Paragraph()
+                    .add(new Text("Customer ID: ").simulateBold())
+                    .add(new Text(transaction.getCustomerId() + "\n"))
+                    .add(new Text("Customer Name: ").simulateBold())
+                    .add(new Text(transaction.getCustomerName() + "\n"))
+                    .add(new Text("Contact: ").simulateBold())
+                    .add(new Text(transaction.getMobile() + "\n"))
+                    .setMarginLeft(40)
+                    .setMarginTop(80)
+                    .setFontSize(12)
+                    .setFontColor(ColorConstants.BLACK);
+            document.add(customerDetails);
+
+            // Table for transaction details
+            Table table = new Table(3)
+                    .setMarginLeft(40)
+                    .setMarginTop(40)
+                    .setFontColor(ColorConstants.BLACK).setBackgroundColor(ColorConstants.WHITE);
+
+            table.addCell(new Cell().add(new Paragraph("Product").simulateBold().setTextAlignment(TextAlignment.CENTER)
+                    .setPaddings(0, 80, 0, 80)));
+            table.addCell(new Cell().add(new Paragraph("Quantity").simulateBold().setTextAlignment(TextAlignment.CENTER)
+                    .setPaddings(0, 20, 0, 20)));
+            table.addCell(new Cell().add(new Paragraph("Price").simulateBold().setTextAlignment(TextAlignment.CENTER)
+                    .setPaddings(0, 30, 0, 30)));
+
+            transaction.getDetails().forEach(detail -> {
+
+                table.addCell(detail.getProductName()).setFontColor(ColorConstants.BLACK)
+                        .setTextAlignment(TextAlignment.CENTER);
+                table.addCell(detail.getQuantity() + "").setFontColor(ColorConstants.BLACK)
+                        .setTextAlignment(TextAlignment.CENTER);
+                table.addCell(detail.getAmount() + "").setFontColor(ColorConstants.BLACK)
+                        .setTextAlignment(TextAlignment.CENTER);
+
+            });
+
+            table.addCell(new Cell(1, 2).add(new Paragraph("Grand Total")
+                    .simulateBold()
+                    .setFontColor(ColorConstants.BLACK)));
+
+            table.addCell(new Cell().add(new Paragraph("Rs." + transaction.getTotalAmount())
+                    .simulateBold()
+                    .setFontColor(ColorConstants.BLACK)));
+
+            document.add(table);
+
+            // Slogan
+            Paragraph slogan = new Paragraph("“Your satisfaction is our priority!”")
+                    .setFontSize(10)
+                    .setFontColor(ColorConstants.DARK_GRAY)
+                    .setTextAlignment(TextAlignment.RIGHT)
+                    .setMarginTop(30);
+            document.add(slogan);
+            document.close();
 
             return baos.toByteArray();
         } catch (Exception e) {

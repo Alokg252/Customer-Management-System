@@ -3,7 +3,7 @@
  * Load all transactions
  * This function loads all transactions from the API and displays them on the page
  */
-async function loadAllTransactions() {
+async function loadAllTransactions(sort = "date") {
     try {
         const transactions = await getAllTransactions();
         console.log(transactions);
@@ -21,10 +21,39 @@ async function loadAllTransactions() {
             return;
         }
 
+        // short total spent
+
+        switch (sort) {
+            case "totalAmount":
+                transactions.sort((a,b)=> b.totalAmount - a.totalAmount);
+                break;
+            case "totalCost":
+                transactions.sort((a,b)=> b.totalCost - a.totalCost);
+                break;
+            case "totalEarn":
+                transactions.sort((a,b)=> (b.totalAmount - b.totalCost) - (a.totalAmount - a.totalCost));
+                break;
+            case "avgord":
+                transactions.sort((a,b)=> (b.totalAmount / b.occurance) - (a.totalAmount / a.occurance));
+                break;
+            case "visited":
+                transactions.sort((a,b)=> b.occurance - a.occurance);
+                break;
+            default:
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                break;
+        }
+
+
         transactions.forEach(transaction => {
             const card = createTransactionCard(transaction);
             if (card) {
-                container.appendChild(card);
+                if(SHORT_ORD==1){
+                    container.prepend(card);
+                }
+                else{
+                    container.appendChild(card);
+                }
             }
         });
     } catch (error) {
@@ -135,6 +164,74 @@ async function showCustomerDetails(Id, field) {
                         </div>
                     `).join('')}
                 </div>
+            </div>
+        `;
+
+        const modalContainer = document.getElementById('modal-container');
+        modalContainer.innerHTML = '';
+        modalContainer.appendChild(modalContent);
+        modalContainer.style.display = 'flex';
+
+    } catch (error) {
+        console.error('Error showing customer details:', error);
+        alert('Error loading customer details. Please try again.');
+    }
+}
+
+
+/**
+ * Show customer details
+ * This function shows the customer details modal for a given customer ID
+ * @param {string} customerId - Customer ID
+ */
+async function editCustomerDetails(Id, field) {
+    try {
+        const transactions = await getCustomerTransactions(Id, field);
+        
+        if (!transactions || transactions.length === 0) {
+            alert('No transactions found for this customer');
+            return;
+        }
+
+        // Sort transactions by date (newest first)
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Get customer info from first transaction
+        const customer = transactions[0];
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'customer-details-modal';
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2>Customer Details</h2>
+                <button onclick="closeModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="customer-info">
+                <p><strong>Name:</strong> <span contenteditable="true">${customer.customerName || 'N/A'}</span></p>
+                <p><strong>Mobile:</strong> <span contenteditable="true">${customer.mobile || 'N/A'}</span></p>
+            </div>
+            <div class="transaction-history">
+                <h3>Transaction History</h3>
+                <div class="transaction-list">
+                    ${transactions.map(t => `
+                        <div class="transaction-item">
+                            ${t.details ? `
+                                <div class="products-list">
+                                    ${t.details.map(p => `
+                                        <div class="product-item">
+                                            <span contenteditable="true">${p.productName}</span>
+                                            <span contenteditable="true">${p.quantity} × ₹${parseFloat(p.amount).toFixed(2)}</span>
+                                            <span contenteditable="true">${new Date(p.date).toLocaleString()}</span>
+                                            <button type="button" id="remove-btn" onclick="removeProductEntry(this)">×</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                <br>
+                <div><button>save</button></div>
             </div>
         `;
 

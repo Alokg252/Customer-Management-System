@@ -27,7 +27,7 @@ function checkReferredBy(){
     
     else{
 
-        fetch(`${API_BASE_URL}/check/referrie`, {
+        fetch(`${API_BASE_URL}/check/referrer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -53,8 +53,9 @@ async function getName(id, field){
 
 // download receipt
 async function getReceipt(transaction) {
-    let body = transaction;
-    fetch(`${API_BASE_URL}/generate-receipt`,{
+    
+    let body = JSON.stringify(transaction);
+    fetch(`${API_BASE_URL}/receipt`,{
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: body
@@ -65,5 +66,14 @@ async function getReceipt(transaction) {
         a.href = url;
         a.download = `receipt_${transaction.customerId}_${new Date().getTime().toString()}.pdf`;
         a.click();
-    })
+    }).catch(err => alert(err));
 }
+
+document.getElementById("sort-type").addEventListener("change",(event)=>{
+    loadAllTransactions(event.target.value);
+});
+
+document.getElementById("sort-order").addEventListener("change",(event)=>{
+    SHORT_ORD = event.target.value;
+    loadAllTransactions(document.getElementById("sort-type").value);
+});

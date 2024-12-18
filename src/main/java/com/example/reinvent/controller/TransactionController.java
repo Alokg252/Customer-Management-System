@@ -31,6 +31,7 @@ public class TransactionController {
     public ResponseEntity<List<Transaction>> searchTransactions(@RequestParam String query) {
         return ResponseEntity.ok(transactionService.searchTransactions(query));
     }
+
     @GetMapping("/transaction/{id}")
     public ResponseEntity<Transaction> searchTransactionById(@PathVariable Long id) {
         return ResponseEntity.ok(transactionRepository.findById(id).get());
@@ -118,20 +119,31 @@ public class TransactionController {
         return ("number already belongs to " + transactionRepository.findByMobile(mobile).get(0).getCustomerName());
     }
 
-    @PostMapping("/check/referrie")
+    @PostMapping("/check/referrer")
     public String checkReferredByString(@RequestBody String referralId) {
-        List<Transaction> referries = transactionRepository.findByReferralId(referralId);
-        if (referries.isEmpty())
-            return "id doesn't exist";
-        else if ((referries.get(0).getReferredCustomerId1() != null)
-                && (referries.get(0).getReferredCustomerId2() == null))
-            return "has already reffered a customer can reffer one more";
+        List<Transaction> referrers = transactionRepository.findByReferralId(referralId);
+        if (referrers.isEmpty())
+            return "referrer's id doesn't exist";
+        else if ((referrers.get(0).getReferredCustomerId1() != null)
+                && (referrers.get(0).getReferredCustomerId2() == null))
+            return "referrer has already referred a customer can refer one more\n" + "Referral ID belongs to : "
+                    + referrers.get(0).getCustomerName();
 
-        else if ((referries.get(0).getReferredCustomerId1() != null)
-                && (referries.get(0).getReferredCustomerId2() != null))
-            return "has already reffered two customers can't reffer anymore";
+        else if ((referrers.get(0).getReferredCustomerId1() != null)
+                && (referrers.get(0).getReferredCustomerId2() != null))
+            return "referrer has already referred two customers can't refer anymore" + "Referral ID belongs to : "
+                    + referrers.get(0).getCustomerName();
 
         return "acceped";
+    }
+
+    @PostMapping("/receipt")
+    public byte[] generateReceipt(@RequestBody Transaction transaction) {
+        try {
+            return CodeGenerators.generateReceipt(transaction);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @PutMapping("/{id}")

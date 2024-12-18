@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Management System</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mycss.css">
 </head>
 <body>
     <div id="alerts"></div>
@@ -96,6 +97,7 @@
                         <button type="button" class="secondary-button" onclick="addProductEntry()">Add Product</button>
                         
                         <div class="total-section">
+                            <div id="receipt-box">receipt&nbsp;<input type="checkbox" checked id="receipt-check"></div>
                             <h4 id="cost-box"><input type="number" id="cost[]" placeholder="total cost"></h4>
                             <h4>Total Amount: <span id="total-amount">₹0.00</span></h4>
                         </div>
@@ -124,15 +126,20 @@
 
             <section id="transaction-list" class="section hidden">
                 <h2>All Transactions</h2>
+                <select id="sort-type">
+                    <option value="date">Date</option>
+                    <option value="totalAmount">total spent amount</option>
+                    <option value="totalCost">total cost</option>
+                    <option value="totalEarn">total Earning</option>
+                    <option value="avgord">avg. ord. value</option>
+                    <option value="visited">times visited</option>
+                </select>
+                <select id="sort-order">
+                    <option value=0>descending</option>
+                    <option value=1>ascending</option>
+                </select>
                 <div id="all-transactions" class="results-container"></div>
-                <div class="clear-data-container">
-                    <div id="clear-confirmation-box" class="clear-confirmation-box hidden">
-                        <input type="text" id="clear-confirmation" placeholder="Type 'clear' to confirm" class="clear-input">
-                        <button onclick="confirmClear()" class="warning-button small">Confirm</button>
-                        <button onclick="cancelClear()" class="cancel-button small">Cancel</button>
-                    </div>
-                    <button onclick="showClearConfirmation()" class="warning-button small">Clear Local Data</button>
-                </div>
+                
             </section>
         </main>
     </div>
@@ -145,5 +152,12 @@
     <script src="s6.js"></script>
     <script src="s7.js"></script>
     <script src="s8.js"></script>
+
+    <script>
+        document.getElementById("receipt-check").addEventListener("change",(event)=>{
+            console.log(event.target.checked); 
+        });
+    </script>
+
 </body>
 </html>

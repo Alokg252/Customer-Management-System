@@ -14,6 +14,7 @@
 	<name>reinvent</name>
 	<description>inventory and customer referals</description>
 	<url/>
+
 	<licenses>
 		<license/>
 	</licenses>
@@ -32,13 +33,13 @@
         <sqlite-jdbc.version>3.44.1.0</sqlite-jdbc.version>
     </properties>
 
-    <!-- <repositories>
+    <repositories>
         <repository>
             <id>central</id>
             <name>Maven Central</name>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
-    </repositories> -->
+    </repositories>
 
 	<dependencies>
 		<dependency>
@@ -69,12 +70,9 @@
             <version>1.18.34</version>
 			<optional>true</optional>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>itext7-core</artifactId>
-			<version>7.2.5</version>
-			<type>pom</type>
-		</dependency> -->
+
+		<!-- iText -->
+
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>kernel</artifactId>
@@ -85,26 +83,6 @@
 			<artifactId>layout</artifactId>
 			<version>9.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>html2pdf</artifactId>
-			<version>6.0.0</version>
-		</dependency>
-		<!-- <dependency>
-			<groupId>org.xhtmlrenderer</groupId>
-			<artifactId>flying-saucer-core</artifactId>
-			<version>9.11.2</version>
-		</dependency> -->
-		<!-- <dependency>
-			<groupId>org.xhtmlrenderer</groupId>
-			<artifactId>flying-saucer-pdf-openpdf</artifactId>
-			<version>9.4.0</version>
-		</dependency> 
-		<dependency>
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
-			<version>1.17.2</version>
-		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -131,6 +109,21 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>com.example.reinvent.ReinventApplication</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

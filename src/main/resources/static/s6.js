@@ -1,16 +1,5 @@
 
 /**
- * Cancel clear
- * This function cancels the clear operation
- */
-function cancelClear() {
-    const clearButton = document.querySelector('.clear-data-container > .warning-button');
-    const confirmationBox = document.getElementById('clear-confirmation-box');
-    clearButton.style.display = 'block';
-    confirmationBox.classList.add('hidden');
-}
-
-/**
  * Get all transactions
  * This function gets all transactions from the API
  * @returns {Promise} Promise that resolves with an array of transactions

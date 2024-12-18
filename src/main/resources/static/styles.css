@@ -99,11 +99,12 @@ nav button:hover {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
-    border: 1px solid #ddd;
+    background: #ddd;
+    border: 1px solid #aaa;
     border-radius: 4px;
+    border: 2px solid #ddd;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
     z-index: 1000;
 }
@@ -119,7 +120,7 @@ nav button:hover {
 }
 
 .search-result-item:hover {
-    background-color: #f8f9fa;
+    background-color: #eee;
 }
 
 .search-result-item.error {
@@ -268,6 +269,14 @@ input, select {
 
 .total-section h4 {
     color: #28a745;
+}
+
+#receipt-box{
+    display: flex;
+    justify-content: start;
+    text-align: left;
+    height: fit-content;
+    margin-right: 26.5vw;
 }
 
 #detail-btn{
@@ -696,37 +705,6 @@ button:hover {
 
 .warning-button:hover {
     background-color: #e0a800;
-}
-
-.clear-data-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.clear-confirmation-box {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.clear-confirmation-box.hidden {
-    display: none;
-}
-
-.clear-input {
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 12px;
-    width: 120px;
 }
 
 .warning-button.small {

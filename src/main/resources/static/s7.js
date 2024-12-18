@@ -118,7 +118,7 @@ function displaySearchResults(transactions) {
             </div>
             <div class="transaction-actions">
                 <button onclick="showCustomerDetails('${transaction.customerId}','customer')" class="view-btn">View Details</button>
-                &nbsp;<button onclick="showCustomerDetails('${transaction.customerId}','customer')" class="edit-btn">Edit Details</button>
+                &nbsp;<button onclick="editCustomerDetails('${transaction.customerId}','customer')" class="edit-btn">Edit Details</button>
             </div>
         </div>
     `).join('');

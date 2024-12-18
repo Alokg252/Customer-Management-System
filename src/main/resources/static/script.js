@@ -1,7 +1,8 @@
 // Global variables
 const API_BASE_URL = '/api/transactions';
 var UserId = null;
-var COST_RATE = 52
+var COST_RATE = 52;
+var SHORT_ORD = 0;
 
 /**
  * Initialize page
@@ -37,23 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         //     newTransactionForm.addEventListener('submit', handleNewTransaction);
         // }
         
-        // Add event listener for clear database button
-        const clearDatabaseButton = document.querySelector('.clear-data-container > .warning-button');
-        if (clearDatabaseButton) {
-            clearDatabaseButton.addEventListener('click', showClearConfirmation);
-        }
-        
-        // Add event listener for cancel clear button
-        const cancelClearButton = document.getElementById('cancel-clear');
-        if (cancelClearButton) {
-            cancelClearButton.addEventListener('click', cancelClear);
-        }
-        
-        // Add event listener for confirm clear button
-        const confirmClearButton = document.getElementById('confirm-clear');
-        if (confirmClearButton) {
-            confirmClearButton.addEventListener('click', clearDatabase);
-        }
         
         // Add event listener for add product entry button
         const addProductEntryButton = document.getElementById('add-product-entry');

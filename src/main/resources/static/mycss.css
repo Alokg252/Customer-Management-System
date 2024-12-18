@@ -1,0 +1,19 @@
+#remove-btn{
+    font-size: 20px;
+    background-color: rgb(178, 78, 78);
+    padding: 0;
+    width: 30px;
+
+}
+
+#remove-btn:hover{
+    background-color: #8c1414;
+}
+
+#sort-type{
+    width: 20vw;
+}
+
+#sort-order{
+    width: 10vw;
+}
