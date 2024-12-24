@@ -9,11 +9,9 @@
 #remove-btn:hover{
     background-color: #8c1414;
 }
+#sort-type, #sort-order{
+    display:block;
+    margin: 10px;
+    width: 70vw;
 
-#sort-type{
-    width: 20vw;
-}
-
-#sort-order{
-    width: 10vw;
 }

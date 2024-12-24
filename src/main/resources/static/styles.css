@@ -17,7 +17,7 @@ body {
 }
 
 header {
-    background-color: #333;
+    background-color: #ae252e;
     color: white;
     text-align: center;
     padding: 1rem;
@@ -32,10 +32,10 @@ nav {
 }
 
 nav button {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem;
     font-size: 1rem;
     border: none;
-    background-color: #007bff;
+    background-color: #444;
     color: white;
     cursor: pointer;
     border-radius: 4px;
@@ -43,7 +43,7 @@ nav button {
 }
 
 nav button:hover {
-    background-color: #0056b3;
+    background-color: #555;
 }
 
 .section {
@@ -60,7 +60,7 @@ nav button:hover {
 
 .search-box {
     display: grid;
-    grid-template-columns: 1fr 2fr auto;
+    grid-template-rows: 1fr 1fr auto;
     gap: 1rem;
     align-items: start;
 }
@@ -490,13 +490,29 @@ button:hover {
 }
 
 @media (max-width: 768px) {
-    nav {
-        flex-direction: column;
+
+    header{
+        font-size: x-small;
     }
-    
+
     .search-controls {
         flex-direction: column;
     }
+
+    nav button{
+        font-size: 0.7rem;
+    }
+
+    .total-section{
+        gap: 25px;
+        align-items: start;
+        flex-direction: column;
+    }
+
+    #cost-box{
+        opacity: 0.8;
+    }
+
 }
 
 /* Modal styles */

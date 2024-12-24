@@ -34,7 +34,13 @@ async function generateReferralId() {
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString();
+    let day = date.getDate();
+    let month = date.getMonth()+1; // starts from 0
+    let year = date.getFullYear();
+    day = day < 10 ? '0' + day : day;
+    month = month < 10 ? '0' + month : month;
+    // return date.toLocaleDateString();
+    return `${day}/${month}/${year}`;
 }
 
 /**

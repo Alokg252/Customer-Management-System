@@ -5,6 +5,9 @@ function checkMobile(event){
     if(body == null)
         alert("please enter mobile number");
     
+    else if(body.length != 10)
+        alert(`mobile number should contain exact 10 digits not ${body.length} digits`)
+    
     else{
 
         fetch(`${API_BASE_URL}/check/mobile`, {

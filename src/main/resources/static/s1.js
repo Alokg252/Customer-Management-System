@@ -140,7 +140,7 @@ async function showCustomerDetails(Id, field) {
                 <p><strong>Total Earning:</strong> ₹${(totalSpent-totalCosting).toFixed(2)}</p>
                 <p><strong>Avg.Ord. Value:</strong> ₹${(totalSpent/customer.occurance).toFixed(2)}</p>
                 <p><strong>Visited:</strong> ${customer.occurance} times</p>
-                <p><strong>Last Visited:</strong> ${new Date(customer.date).toLocaleString() || 'N/A'}</p>
+                <p><strong>Last Visited:</strong> ${formatDate(customer.date) || 'N/A'}</p>
                 ${customer.referredBy ? `<p><strong>Referred By:</strong> ${customer.referredBy} &nbsp; <button onclick="showCustomerDetails('${customer.referredBy}', 'referral')" id="detail-btn">View Details</button></p>` : ''}
                 ${customer.referredCustomerId2 ? `<p><strong>Referred Customer 2:</strong> ${customer.referredCustomerId2} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId2}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
                 ${customer.referredCustomerId1 ? `<p><strong>Referred Customer 1:</strong> ${customer.referredCustomerId1} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId1}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
