@@ -9,11 +9,10 @@ function checkMobile(event){
         alert(`mobile number should contain exact 10 digits not ${body.length} digits`)
     
     else{
-
         fetch(`${API_BASE_URL}/check/mobile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'text/plain',
             },
             body: body
         }).then(res => res.text()).then(res => alert(res.toString()))
@@ -80,3 +79,15 @@ document.getElementById("sort-order").addEventListener("change",(event)=>{
     SHORT_ORD = event.target.value;
     loadAllTransactions(document.getElementById("sort-type").value);
 });
+
+async function exportExcel() {
+    fetch(`${API_BASE_URL}/excel`)
+    .then(res => res.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `customer_data_${new Date().toLocaleString()}.xlsx`;
+        a.click();
+    }).catch(err => alert(err));
+}

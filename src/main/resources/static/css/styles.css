@@ -251,6 +251,7 @@ input, select {
 
 .edit-btn{
     background-color: #0056b3;
+    display: none;
 }
 
 .edit-btn:hover{
@@ -511,6 +512,14 @@ button:hover {
 
     #cost-box{
         opacity: 0.8;
+    }
+    #export-btn, #logout-btn{
+        font-size: 0.6rem;
+        padding: 0.2rem;
+    }
+
+    #all-transaction-header{
+        align-items: safe;
     }
 
 }

@@ -20,8 +20,10 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
@@ -69,15 +71,16 @@ public class CodeGenerators {
             File file = new File(path);
             Scanner scanner = null;
 
-            try{
+            try {
                 scanner = new Scanner(file);
-            }catch (FileNotFoundException e) {
-                System.out.println("created "+file.getName()+" to store last generated referral id");
+            } catch (FileNotFoundException e) {
+                System.out.println("created " + file.getName() + " to store last generated referral id");
                 file.createNewFile();
-                // Files.getFileAttributeView(file.toPath(), DosFileAttributeView.class).setHidden(true);
+                // Files.getFileAttributeView(file.toPath(),
+                // DosFileAttributeView.class).setHidden(true);
                 scanner = new Scanner(file);
-            }catch(Exception e){
-                System.out.println("idc"+e);
+            } catch (Exception e) {
+                System.out.println("idc" + e);
             }
             char c = '@';
             if (scanner.hasNextLine()) {
@@ -104,11 +107,9 @@ public class CodeGenerators {
             fileWriter.write(referralId);
             fileWriter.close();
             return referralId;
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(
-                "error:"+e
-            );
+                    "error:" + e);
             return null;
         }
     }
@@ -150,6 +151,8 @@ public class CodeGenerators {
                     .setFontColor(ColorConstants.DARK_GRAY)
                     .setTextAlignment(TextAlignment.RIGHT);
             document.add(date);
+
+            document.add(new LineSeparator(new SolidLine()));
 
             // Customer details at left
             Paragraph customerDetails = new Paragraph()

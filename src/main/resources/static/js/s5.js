@@ -171,7 +171,7 @@ function loadCustomerDetails(customer) {
         generateCustomerIdBtn.classList.add('disabled-button');
     }
     
-    if (generateReferralIdBtn) {
+    if (generateReferralIdBtn && customer['referralId']) {
         generateReferralIdBtn.disabled = true;
         generateReferralIdBtn.classList.add('disabled-button');
     }

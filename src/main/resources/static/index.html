@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Samad Classic Collection</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="mycss.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mycss.css">
 </head>
 <body>
     <div id="alerts"></div>
@@ -23,8 +24,8 @@
 
         <main>
             <section id="new-transaction" class="section">
-                <h2>New Transaction</h2>
-                <div class="customer-search">
+                    <h2>New Transaction</h2>
+                    <div class="customer-search">
                     <div class="search-box">
                         <select id="search-type" onchange="handleSearchInput()">
                             <option value="all">Search All Fields</option>
@@ -125,7 +126,14 @@
             </section>
 
             <section id="transaction-list" class="section hidden">
-                <h2>All Transactions</h2>
+                <div id="all-transaction-header">
+                    <h2>All Transactions</h2>
+                    <div>
+                        <button id="export-btn" onclick="exportExcel()">Export</button>
+                        &nbsp;
+                        <a href="/logout"><button id="logout-btn">Logout</button></a>
+                    </div>
+                </div>
                 <select id="sort-type">
                     <option value="date">Date</option>
                     <option value="totalAmount">total spent amount</option>
@@ -143,16 +151,15 @@
             </section>
         </main>
     </div>
-    <script src="script.js"></script>
-    <script src="s1.js"></script>
-    <script src="s2.js"></script>
-    <script src="s3.js"></script>
-    <script src="s4.js"></script>
-    <script src="s5.js"></script>
-    <script src="s6.js"></script>
-    <script src="s7.js"></script>
-    <script src="s8.js"></script>
-
+    <script src="js/script.js"></script>
+    <script src="js/s1.js"></script>
+    <script src="js/s2.js"></script>
+    <script src="js/s3.js"></script>
+    <script src="js/s4.js"></script>
+    <script src="js/s5.js"></script>
+    <script src="js/s6.js"></script>
+    <script src="js/s7.js"></script>
+    <script src="js/s8.js"></script>
     <script>
         document.getElementById("receipt-check").addEventListener("change",(event)=>{
             console.log(event.target.checked); 

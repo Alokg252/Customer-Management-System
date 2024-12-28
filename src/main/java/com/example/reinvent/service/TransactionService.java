@@ -229,4 +229,8 @@ public class TransactionService {
         }
         return transactionDetailRepository.findByTransactions(transactions.get(0));
     }
+
+    public byte[] exportExcel(){
+        return ExcelExportService.exportUserDataToExcel(transactionRepository.findAll());
+    }
 }

@@ -4,8 +4,12 @@ import com.example.reinvent.entity.Transaction;
 import com.example.reinvent.repository.TransactionRepository;
 import com.example.reinvent.service.CodeGenerators;
 import com.example.reinvent.service.TransactionService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+// import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,11 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.searchTransactions(query));
     }
 
+    @GetMapping("/token")
+    public String getToken(HttpServletRequest request){
+        return request.getSession().getId();
+    }
+
     @GetMapping("/transaction/{id}")
     public ResponseEntity<Transaction> searchTransactionById(@PathVariable Long id) {
         return ResponseEntity.ok(transactionRepository.findById(id).get());
@@ -42,6 +51,8 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.findByCustomerIdContainingIgnoreCase(customerId));
     }
 
+/*************  ✨ Codeium Command ⭐  *************/
+/******  a1f9040a-5b14-4443-90a2-6fed62b78814  *******/
     @GetMapping("/customer/{customerId}/name")
     public ResponseEntity<String> findNameByCustomerId(@PathVariable String customerId) {
         return ResponseEntity.ok(transactionRepository.findByCustomerId(customerId).get(0).getCustomerName());
@@ -136,6 +147,15 @@ public class TransactionController {
     public byte[] generateReceipt(@RequestBody Transaction transaction) {
         try {
             return CodeGenerators.generateReceipt(transaction);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/excel")
+    public byte[] generateExcel() {
+        try {
+            return transactionService.exportExcel();
         } catch (Exception e) {
             return null;
         }
