@@ -58,6 +58,7 @@ public class CodeGenerators {
 
     // -------------------------------------------------------------------------------------------
 
+    @SuppressWarnings("null")
     public static String generateNewReferralId() {
 
         try {
