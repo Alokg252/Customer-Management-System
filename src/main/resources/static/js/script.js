@@ -125,4 +125,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+document.getElementById("del-search").addEventListener("change", ()=>{handleSearchButtonClick()});
 
+function getToken(){
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; XSRF-TOKEN=`);
+    if(parts.length === 2) 
+        return parts.pop().split(';').shift().replaceAll('-','').toString();
+    else
+        return null;
+}

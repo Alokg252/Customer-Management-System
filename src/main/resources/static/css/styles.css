@@ -249,13 +249,20 @@ input, select {
     background-color: #218838;
 }
 
-.edit-btn{
-    background-color: #0056b3;
-    display: none;
+.del-btn{
+    background-color: #c21e1e;
 }
 
-.edit-btn:hover{
-    background-color: #3e7cbf;
+.del-btn:hover{
+    background-color: #672222;
+}
+
+.res-btn{
+    background-color: olivedrab;
+}
+
+.res-btn:hover{
+    background-color: rgb(72, 96, 24);
 }
 
 .total-section {

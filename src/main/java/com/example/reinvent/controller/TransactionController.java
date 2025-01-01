@@ -3,17 +3,20 @@ package com.example.reinvent.controller;
 import com.example.reinvent.entity.Transaction;
 import com.example.reinvent.repository.TransactionRepository;
 import com.example.reinvent.service.CodeGenerators;
+import com.example.reinvent.service.ReceiptGeneratorService;
 import com.example.reinvent.service.TransactionService;
 
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -31,11 +34,6 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.searchTransactions(query));
     }
 
-    @GetMapping("/token")
-    public String getToken(HttpServletRequest request){
-        return request.getSession().getId();
-    }
-
     @GetMapping("/transaction/{id}")
     public ResponseEntity<Transaction> searchTransactionById(@PathVariable Long id) {
         return ResponseEntity.ok(transactionRepository.findById(id).get());
@@ -51,8 +49,8 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.findByCustomerIdContainingIgnoreCase(customerId));
     }
 
-/*************  ✨ Codeium Command ⭐  *************/
-/******  a1f9040a-5b14-4443-90a2-6fed62b78814  *******/
+    /************* ✨ Codeium Command ⭐ *************/
+    /****** a1f9040a-5b14-4443-90a2-6fed62b78814 *******/
     @GetMapping("/customer/{customerId}/name")
     public ResponseEntity<String> findNameByCustomerId(@PathVariable String customerId) {
         return ResponseEntity.ok(transactionRepository.findByCustomerId(customerId).get(0).getCustomerName());
@@ -118,6 +116,22 @@ public class TransactionController {
         return transactionRepository.saveAll(transactions);
     }
 
+    @GetMapping("/excel")
+    public byte[] generateExcel() {
+        try {
+            return transactionService.exportExcel();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/restore/{id}")
+    public String restoreCustomer(@PathVariable Long id) {
+        if (transactionService.restoreCustomer(id))
+            return "customer restored successfully";
+        return "can't restore customer";
+    }
+
     @PostMapping("/check/mobile")
     public String checkMobile(@RequestBody String mobile) {
         if (transactionRepository.findByMobile(mobile).isEmpty())
@@ -146,16 +160,7 @@ public class TransactionController {
     @PostMapping("/receipt")
     public byte[] generateReceipt(@RequestBody Transaction transaction) {
         try {
-            return CodeGenerators.generateReceipt(transaction);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @GetMapping("/excel")
-    public byte[] generateExcel() {
-        try {
-            return transactionService.exportExcel();
+            return ReceiptGeneratorService.generateReceipt(transaction);
         } catch (Exception e) {
             return null;
         }
@@ -167,17 +172,25 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteById(@PathVariable Long id, HttpServletRequest req) {
 
-        if (!transactionService.deleteTransaction(id)) {
+        if (!transactionRepository.existsById(id))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid ID");
-        }
-        return ResponseEntity.ok("Deleted ID:" + id);
+
+        Transaction deletedTransaction = transactionService.deleteTransaction(id, req.getHeader("delete"));
+
+        return ResponseEntity.ok("Deleted Customer : " +
+                deletedTransaction.getCustomerName() + "\nCustomer ID : " +
+                deletedTransaction.getCustomerId() + "\nMobile : " +
+                deletedTransaction.getMobile() + "\nReferral ID : " +
+                deletedTransaction.getReferralId());
+
     }
 
     @DeleteMapping("customer/{id}")
     public ResponseEntity<String> deleteByCustomer(@PathVariable String customerId) {
         if (!transactionService.deleteTransactionsByCustomer(customerId)) {
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Customer Id");
         }
         return ResponseEntity.ok("Deleted All Transections of Customer:" + customerId);

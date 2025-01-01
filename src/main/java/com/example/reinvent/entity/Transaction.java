@@ -5,9 +5,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 
- */
+
 @Data
 @Entity
 @Table(name = "transactions")
@@ -42,6 +40,7 @@ public class Transaction {
     private double totalAmount;
     private double totalCost;
     private int occurance;
+    private Boolean deleted = false;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "transaction_id", nullable = false) // This is the foreign key in TransactionDetail table
@@ -65,3 +64,22 @@ public class Transaction {
         }
     }
 }
+
+/*
+ * <--COMMANDS-->
+ * nohup java -jar app.jar &
+ * __
+ * ps aux | grep app.jar
+ * kill -9 <PID>
+ * 
+ * 
+ * <-- with tmux -->
+ * sudo yum install tmux
+ * tmux new -s mySpringBootApp
+ * java -jar app.jar
+ * __
+ * tmux attach -t mySpringBootApp
+ * ctrl+c
+ */
+
+//  ssh -i "cms.pem" ec2-user@ec2-34-226-213-244.compute-1.amazonaws.com

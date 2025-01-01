@@ -78,7 +78,8 @@ async function saveTransaction(transaction) {
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getToken()
             },
             body: body
         });

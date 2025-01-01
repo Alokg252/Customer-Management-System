@@ -73,6 +73,7 @@ async function loadAllTransactions(sort = "date") {
  */
 function createTransactionCard(transaction) {
     if (!transaction) return null;
+    if (transaction.deleted) return null;
 
     const card = document.createElement('div');
     card.className = 'transaction-card';
@@ -131,7 +132,7 @@ async function showCustomerDetails(Id, field) {
                 <button onclick="closeModal()" class="close-btn">&times;</button>
             </div>
             <div class="customer-info">
-                <p><strong>Name:</strong> ${customer.customerName || 'N/A'}</p>
+                <p><strong>Name:</strong> ${customer.customerName.replace("(deleted)",`<span class="deleted-text">(deleted)</span>`) || 'N/A'}</p>
                 <p><strong>Mobile:</strong> ${customer.mobile || 'N/A'}</p>
                 <p><strong>Customer ID:</strong> ${customer.customerId || 'N/A'}</p>
                 ${customer.referralId ? `<p><strong>Referral ID:</strong> ${customer.referralId}</p>` : ''}
@@ -141,9 +142,9 @@ async function showCustomerDetails(Id, field) {
                 <p><strong>Avg.Ord. Value:</strong> ₹${(totalSpent/customer.occurance).toFixed(2)}</p>
                 <p><strong>Visited:</strong> ${customer.occurance} times</p>
                 <p><strong>Last Visited:</strong> ${formatDate(customer.date) || 'N/A'}</p>
-                ${customer.referredBy ? `<p><strong>Referred By:</strong> ${customer.referredBy} &nbsp; <button onclick="showCustomerDetails('${customer.referredBy}', 'referral')" id="detail-btn">View Details</button></p>` : ''}
-                ${customer.referredCustomerId2 ? `<p><strong>Referred Customer 2:</strong> ${customer.referredCustomerId2} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId2}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
-                ${customer.referredCustomerId1 ? `<p><strong>Referred Customer 1:</strong> ${customer.referredCustomerId1} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId1}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
+                ${customer.referredBy ? `<p><strong>Referred By:</strong> ${customer.referredBy.replace("(deleted)",`<span class="deleted-text">(deleted)</span>`)} &nbsp; <button onclick="showCustomerDetails('${customer.referredBy}', 'referral')" id="detail-btn">View Details</button></p>` : ''}
+                ${customer.referredCustomerId2 ? `<p><strong>Referred Customer 2:</strong> ${customer.referredCustomerId2.replace("(deleted)",`<span class="deleted-text">(deleted)</span>`)} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId2}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
+                ${customer.referredCustomerId1 ? `<p><strong>Referred Customer 1:</strong> ${customer.referredCustomerId1.replace("(deleted)",`<span class="deleted-text">(deleted)</span>`)} &nbsp; <button onclick="showCustomerDetails('${customer.referredCustomerId1}', 'customer')" id="detail-btn">View Details</button></p>` : ''}
             </div>
             <div class="transaction-history">
                 <h3>Transaction History</h3>

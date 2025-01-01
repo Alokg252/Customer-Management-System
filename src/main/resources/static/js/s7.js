@@ -64,7 +64,6 @@ async function handleSearchButtonClick() {
         searchResults.innerHTML = '<p>Please enter a search term</p>';
         return;
     }
-
     try {
         let endpoint;
         switch(searchTypeValue) {
@@ -89,12 +88,32 @@ async function handleSearchButtonClick() {
             throw new Error('Search failed');
         }
 
-        const transactions = await response.json();
+        let transactions = await response.json();
         displaySearchResults(transactions);
     } catch (error) {
         console.error('Search error:', error);
         searchResults.innerHTML = '<p class="error">Error occurred while searching. Please try again.</p>';
     }
+}
+
+function createCard(transaction){
+    return `
+        <div class="transaction-card">
+            <div class="transaction-header">
+                <h3>Customer: ${transaction.customerName}</h3>
+                <span class="customer-id">ID: ${transaction.customerId}</span>
+            </div>
+            <div class="transaction-details">
+                <p>Mobile: ${transaction.mobile || 'N/A'}</p>
+                <p>Referral ID: ${transaction.referralId || 'N/A'}</p>
+                <p>Date: ${formatDate(transaction.date)}</p>
+            </div>
+            <div class="transaction-actions">
+                <button onclick="showCustomerDetails('${transaction.customerId}','customer')" class="view-btn">View Details</button>
+                &nbsp;<button onclick="deleteCustomer('${transaction.id}')" class="del-btn ${(transaction.deleted) ? 'hidden' : ''}">Delete Customer</button>
+                &nbsp;<button onclick="restoreCustomer('${transaction.id}')" class=" res-btn ${(!transaction.deleted) ? 'hidden' : ''}">Restore Customer</button>
+            </div>
+        </div>`
 }
 
 /**
@@ -111,22 +130,12 @@ function displaySearchResults(transactions) {
         return;
     }
 
-    const resultsHtml = transactions.map(transaction => `
-        <div class="transaction-card">
-            <div class="transaction-header">
-                <h3>Customer: ${transaction.customerName}</h3>
-                <span class="customer-id">ID: ${transaction.customerId}</span>
-            </div>
-            <div class="transaction-details">
-                <p>Mobile: ${transaction.mobile || 'N/A'}</p>
-                <p>Referral ID: ${transaction.referralId || 'N/A'}</p>
-                <p>Date: ${formatDate(transaction.date)}</p>
-            </div>
-            <div class="transaction-actions">
-                <button onclick="showCustomerDetails('${transaction.customerId}','customer')" class="view-btn">View Details</button>
-                &nbsp;<button onclick="editCustomerDetails('${transaction.customerId}','customer')" class="edit-btn">Edit Details</button>
-            </div>
-        </div>
+    const resultsHtml = transactions.map(transaction => 
+    `${
+        (document.getElementById("del-search").checked) ? 
+        ((transaction.deleted) ? createCard(transaction) : '') :
+        (!(transaction.deleted) ? createCard(transaction) : '')
+    }
     `).join('');
 
     searchResults.innerHTML = resultsHtml;

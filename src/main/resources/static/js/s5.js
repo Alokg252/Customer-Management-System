@@ -89,30 +89,32 @@ function displayCustomerSearchResults(customers, searchValue) {
     }
 
     customers.forEach(customer => {
-        const div = document.createElement('div');
-        div.className = 'search-result-item';
-        
-        // Show only essential information
-        div.innerHTML = `
+        if(!customer.deleted){        
+            const div = document.createElement('div');
+            div.className = 'search-result-item';
+            
+            // Show only essential information
+            div.innerHTML = `
             <div class="customer-info">
-                <div>
-                    <strong>${highlightMatch(customer.customerName, searchValue)}</strong><br>
-                    <span class="text-muted">ID: ${highlightMatch(customer.customerId, searchValue)}</span><br>
-                    <span class="text-muted">Mobile: ${highlightMatch(customer.mobile, searchValue)}</span><br>
-                    <span class="text-muted">Ref ID: ${highlightMatch(customer.referralId || '', searchValue)}</span>
-                </div>
-                <button class="btn btn-sm btn-primary select-customer">Select</button>
+            <div>
+            <strong>${highlightMatch(customer.customerName, searchValue)}</strong><br>
+            <span class="text-muted">ID: ${highlightMatch(customer.customerId, searchValue)}</span><br>
+            <span class="text-muted">Mobile: ${highlightMatch(customer.mobile, searchValue)}</span><br>
+            <span class="text-muted">Ref ID: ${highlightMatch(customer.referralId || '', searchValue)}</span>
             </div>
-        `;
-
-        // Add click handler for the select button
-        const selectBtn = div.querySelector('.select-customer');
-        selectBtn.addEventListener('click', () => {
-            loadCustomerDetails(customer);
-            dropdown.classList.add('hidden');
-        });
-
-        dropdown.appendChild(div);
+            <button class="btn btn-sm btn-primary select-customer">Select</button>
+            </div>
+            `;
+            
+            // Add click handler for the select button
+            const selectBtn = div.querySelector('.select-customer');
+            selectBtn.addEventListener('click', () => {
+                loadCustomerDetails(customer);
+                dropdown.classList.add('hidden');
+            });
+            
+            dropdown.appendChild(div);
+        }
     });
 
     dropdown.classList.remove('hidden');

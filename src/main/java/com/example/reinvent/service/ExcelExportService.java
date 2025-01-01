@@ -19,45 +19,47 @@ public class ExcelExportService {
             Sheet sheet = workbook.createSheet("Users");
 
             // Style
+            CellStyle styleCenter = workbook.createCellStyle();
+            styleCenter.setAlignment(HorizontalAlignment.CENTER);
+
             CellStyle style = workbook.createCellStyle();
             Font font = workbook.createFont();
             font.setBold(true);
             font.setColor(IndexedColors.BLACK1.getIndex());
             style.setFont(font);
+            style.setAlignment(HorizontalAlignment.CENTER);
 
             // Header Row
-            Row headerRow = sheet.createRow(0);
-            Cell c1 = headerRow.createCell(0);
-            c1.setCellValue("Name");
-            c1.setCellStyle(style);
-
-            Cell c2 = headerRow.createCell(1);
-            c2.setCellValue("Number");
-            c2.setCellStyle(style);
-
-            Cell c3 = headerRow.createCell(2);
-            c3.setCellValue("Total Spent");
-            c3.setCellStyle(style);
-
-            Cell c4 = headerRow.createCell(3);
-            c4.setCellValue("Last Visited");
-            c4.setCellStyle(style);
+            Row row = sheet.createRow(0);
+            Cell c;
+            String[] vals = { "Name", "Mobile", "Total Spent (₹)", "Last Visited" };
+            for (int i = 0; i < vals.length; i++) {
+                c = row.createCell(i);
+                c.setCellValue(vals[i]);
+                c.setCellStyle(style);
+            }
 
             // Data Rows
             int rowIndex = 1;
             for (Transaction user : users) {
-                Row row = sheet.createRow(rowIndex++);
-                row.createCell(0).setCellValue(user.getCustomerName());
-                row.createCell(1).setCellValue(user.getMobile());
-                row.createCell(2).setCellValue(user.getTotalAmount());
-                row.createCell(3).setCellValue(
-                    LocalDateTime.parse(user.getDate(), DateTimeFormatter.ISO_DATE_TIME)
-                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                row = sheet.createRow(rowIndex++);
+
+                vals[0] = user.getCustomerName();
+                vals[1] = user.getMobile();
+                vals[2] = user.getTotalAmount() + "";
+                vals[3] = LocalDateTime.parse(user.getDate(), DateTimeFormatter.ISO_DATE_TIME)
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+                for (int i = 0; i < vals.length; i++) {
+                    c = row.createCell(i);
+                    c.setCellValue(vals[i]);
+                    c.setCellStyle(styleCenter);
                 }
+            }
 
             // Autosize Columns
-            sheet.autoSizeColumn(0);
-            sheet.autoSizeColumn(1);
+            for (int i = 0; i < 4; i++)
+                sheet.autoSizeColumn(i);
 
             // Write to ByteArrayOutputStream
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

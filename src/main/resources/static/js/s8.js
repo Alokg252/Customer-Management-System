@@ -10,9 +10,11 @@ function checkMobile(event){
     
     else{
         fetch(`${API_BASE_URL}/check/mobile`, {
+            
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain',
+                'X-CSRF-TOKEN': getToken()
             },
             body: body
         }).then(res => res.text()).then(res => alert(res.toString()))
@@ -32,7 +34,8 @@ function checkReferredBy(){
         fetch(`${API_BASE_URL}/check/referrer`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'text/plain',
+                'X-CSRF-TOKEN': getToken()
             },
             body: body
         }).then(res => res.text()).then(res => alert(res.toString()))
@@ -59,7 +62,10 @@ async function getReceipt(transaction) {
     let body = JSON.stringify(transaction);
     fetch(`${API_BASE_URL}/receipt`,{
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN': getToken()
+        },
         body: body
     }).then(res => res.blob())
     .then(blob => {
@@ -90,4 +96,35 @@ async function exportExcel() {
         a.download = `customer_data_${new Date().toLocaleString()}.xlsx`;
         a.click();
     }).catch(err => alert(err));
+}
+
+function deleteCustomer(id){
+    let conf = confirm("Delete Permanently ?");
+    let state = conf ? "delete" : "yes"
+    if(prompt(`Are you sure you want to delete this customer?\nType '${state}' to confirm`) === state){
+
+        fetch(`${API_BASE_URL}/${id}`,{
+            method: 'DELETE',
+            headers: {
+                delete : `${state}`
+            }
+        }).then(res => res.text())
+        .then(res => {
+            alert(res.toString());
+            loadAllTransactions(document.getElementById("sort-type").value)
+            window.location.reload();
+        })
+        .catch(err => alert(err));
+    }
+}
+
+function restoreCustomer(id){
+    fetch(`${API_BASE_URL}/restore/${id}`)
+    .then(res => res.text())
+    .then(data =>{alert(data)})
+    .catch(err =>{console.log(err)});
+
+    loadAllTransactions(document.getElementById("sort-type").value)
+    window.location.reload()
+
 }

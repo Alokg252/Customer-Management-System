@@ -29,3 +29,19 @@
 #logout-btn:hover{
     background-color: #8c1414;
 }
+
+#del-search{
+    width: 1rem;
+    height: 27px;
+}
+
+#del-search-box{
+    padding: 10px;
+    color: #666;
+    display: flex;
+    justify-content: start;
+}
+.deleted-text{
+    color: rgb(202, 21, 21);
+    font-weight: bold;
+}

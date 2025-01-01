@@ -15,6 +15,7 @@ import com.example.reinvent.entity.TransactionDetail;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 
 @Service
 public class TransactionService {
@@ -204,12 +205,51 @@ public class TransactionService {
     }
 
     // Delete a single transaction
-    public boolean deleteTransaction(Long id) {
-        if (!transactionRepository.existsById(id)) {
+    public Transaction deleteTransaction(Long id, String delete) {
+        Transaction transaction = transactionRepository.findById(id).get();
+
+        if (delete.equals("delete")) {
+
+            if (transaction.getReferredBy() != null && !transaction.getReferredBy().endsWith("(deleted)")) {
+                var referrer = transactionRepository.findByReferralId(transaction.getReferredBy()).get(0);
+                if ((referrer.getReferredCustomerId1()).equals(transaction.getCustomerId()))
+                    referrer.setReferredCustomerId1(transaction.getCustomerName() + " (deleted)");
+                else if ((referrer.getReferredCustomerId2()).equals(transaction.getCustomerId()))
+                    referrer.setReferredCustomerId2(transaction.getCustomerName() + " (deleted)");
+            }
+
+            if (transaction.getReferredCustomerId1() != null
+                    && !transaction.getReferredCustomerId1().endsWith("(deleted)")) {
+                transactionRepository.findByCustomerId(transaction.getReferredCustomerId1()).get(0)
+                        .setReferredBy(transaction.getCustomerName() + " (deleted)");
+                if (transaction.getReferredCustomerId2() != null
+                        && !transaction.getReferredCustomerId2().endsWith("(deleted)")) {
+                    transactionRepository.findByCustomerId(transaction.getReferredCustomerId2()).get(0)
+                            .setReferredBy(transaction.getCustomerName() + " (deleted)");
+                }
+            }
+            transactionRepository.deleteById(id);
+        }
+
+        else {
+            transaction.setCustomerName(transaction.getCustomerName() + " (deleted)");
+            transaction.setDeleted(true);
+            transactionRepository.save(transaction);
+        }
+
+        return transaction;
+    }
+
+    public boolean restoreCustomer(Long id) {
+        try {
+            Transaction transaction = transactionRepository.findById(id).get();
+            transaction.setDeleted(false);
+            transaction.setCustomerName(transaction.getCustomerName().replace(" (deleted)", ""));
+            transactionRepository.save(transaction);
+            return true;
+        } catch (Exception e) {
             return false;
         }
-        transactionRepository.deleteById(id);
-        return true;
     }
 
     // Delete all transactions for a specific customer
@@ -230,7 +270,7 @@ public class TransactionService {
         return transactionDetailRepository.findByTransactions(transactions.get(0));
     }
 
-    public byte[] exportExcel(){
+    public byte[] exportExcel() {
         return ExcelExportService.exportUserDataToExcel(transactionRepository.findAll());
     }
 }
