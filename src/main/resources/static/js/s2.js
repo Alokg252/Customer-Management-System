@@ -59,6 +59,7 @@ async function handleNewTransaction(event) {
                 loadAllTransactions();
             }
         });
+        
     } catch (error) {
         console.error('Error creating transaction:', error);
         alert('Error creating transaction. Please try again.');

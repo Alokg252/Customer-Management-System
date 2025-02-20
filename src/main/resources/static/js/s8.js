@@ -63,6 +63,7 @@ async function getReceipt(transaction) {
     fetch(`${API_BASE_URL}/receipt`,{
         method: 'POST',
         headers: {
+            
             'Content-Type':'application/json',
             'X-CSRF-TOKEN': getToken()
         },

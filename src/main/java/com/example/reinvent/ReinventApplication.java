@@ -8,7 +8,7 @@ public class ReinventApplication {
 
 	public static void exec() {
 		try {
-			ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "start http://127.0.0.1:80");
+			ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "start http://127.0.0.1:8080");
 			Process process = processBuilder.start();
 			int exitCode = process.waitFor();
 			System.out.println("executed with exit code: " + exitCode);
@@ -20,6 +20,6 @@ public class ReinventApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ReinventApplication.class, args);
 		System.out.println("ready..");
-		// exec();
+		exec();
 	}
 }

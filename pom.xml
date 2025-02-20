@@ -75,7 +75,11 @@
             <version>1.18.34</version>
 			<optional>true</optional>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		
 		<!-- XML -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
