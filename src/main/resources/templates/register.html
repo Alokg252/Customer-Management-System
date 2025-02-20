@@ -52,7 +52,7 @@
 <body>
     <div class="register-container">
         <h2>Register</h2>
-        <form action="/api/shop/register" method="post">
+        <form id="registerForm">
             <input type="text" name="shopname" placeholder="Shop Name" required>
             <input type="email" name="username" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
@@ -60,5 +60,29 @@
         </form>
         <p>Already have an account? <a href="/login">Login here</a></p>
     </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const response = await fetch('/api/shop/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    alert('Registration failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -6,7 +6,6 @@ import com.example.reinvent.service.CodeGenerators;
 import com.example.reinvent.service.ReceiptGeneratorService;
 import com.example.reinvent.service.TransactionService;
 
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,9 +157,9 @@ public class TransactionController {
     }
 
     @PostMapping("/receipt")
-    public byte[] generateReceipt(@RequestBody Transaction transaction) {
+    public byte[] generateReceipt(@RequestBody ReceiptTransaction transaction) {
         try {
-            return ReceiptGeneratorService.generateReceipt(transaction);
+            return ReceiptGeneratorService.generateReceipt(transaction, transaction.getShop());
         } catch (Exception e) {
             return null;
         }
@@ -194,5 +193,13 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Customer Id");
         }
         return ResponseEntity.ok("Deleted All Transections of Customer:" + customerId);
+    }
+}
+
+
+class ReceiptTransaction extends Transaction{
+    String shop;
+    public String getShop() {
+        return shop;
     }
 }

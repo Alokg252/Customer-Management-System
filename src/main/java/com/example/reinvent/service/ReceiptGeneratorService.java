@@ -30,7 +30,7 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 @Service
 public class ReceiptGeneratorService {
         
-    public static byte[] generateReceipt(Transaction transaction) throws IOException {
+    public static byte[] generateReceipt(Transaction transaction, String CurrentShopName) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
@@ -54,7 +54,7 @@ public class ReceiptGeneratorService {
             // Shop name at center
             PdfFont boldFont = PdfFontFactory.createFont("Helvetica-Bold");
 
-            Paragraph shopName = new Paragraph("Samad Classic Collection")
+            Paragraph shopName = new Paragraph(CurrentShopName)
                     .setFont(boldFont)
                     .setFontSize(12)
                     .setTextAlignment(TextAlignment.LEFT)
@@ -165,5 +165,4 @@ public class ReceiptGeneratorService {
             return null;
         }
     }
-
 }

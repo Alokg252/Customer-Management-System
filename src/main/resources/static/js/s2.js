@@ -32,7 +32,7 @@ async function handleNewTransaction(event) {
         date: fetchDate().toISOString(),
         totalAmount: totalAmount,
         totalCost:document.getElementById('cost[]').value || totalAmount*(COST_RATE/100),
-        details: products || null
+        details: products || null,
     };
 
     if(UserId != null){
@@ -91,6 +91,7 @@ async function saveTransaction(transaction) {
             alert((await response.text()).toString());
         }else{
             if(document.getElementById("receipt-check").checked){
+                transaction['shop'] = sessionStorage.getItem('shop');
                 getReceipt(transaction);
             }
             return await response;
