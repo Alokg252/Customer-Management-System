@@ -25,6 +25,3 @@ This is a simple customer management system which allows you to manage customers
 
 1. Clone the repository
 2. Run the application using the command `mvn spring-boot:run`
-
-## Screenshots
-coming soon...
